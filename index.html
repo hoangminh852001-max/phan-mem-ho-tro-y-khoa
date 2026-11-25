@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CÔNG CỤ Y KHOA</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background: #f1f5f9; color: #0f172a; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    header { background: #ffffff; border-bottom: 1px solid #cbd5e1; padding: 0 16px; height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .brand { font-weight: 700; color: #0284c7; font-size: 16px; white-space: nowrap; }
+    .tabs { display: flex; gap: 6px; height: 100%; }
+    .tab-btn { background: none; border: none; border-bottom: 3px solid transparent; padding: 0 12px; font-weight: 700; color: #64748b; cursor: pointer; white-space: nowrap; }
+    .tab-btn.active { color: #0284c7; border-bottom-color: #0284c7; }
+    .top-actions { display: flex; gap: 8px; }
+    main { flex: 1; padding: 12px; overflow: hidden; display: flex; }
+    .panel { display: none; width: 100%; height: 100%; gap: 12px; }
+    .panel.active { display: flex; }
+    .left { width: 320px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+    .left-top { padding: 10px; border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; }
+    .search { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    .list { list-style: none; flex: 1; overflow-y: auto; }
+    .item { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; cursor: pointer; }
+    .item:hover { background: #f8fafc; }
+    .item.active { background: #e0f2fe; border-left: 4px solid #0284c7; }
+    .item-title { font-weight: 700; font-size: 14px; margin-bottom: 3px; }
+    .item-sub { font-size: 12px; color: #64748b; }
+    .right { flex: 1; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; }
+    .right-top { padding: 10px 16px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .right-title { font-size: 16px; font-weight: 700; }
+    .btns { display: flex; gap: 8px; flex-shrink: 0; }
+    .right-body { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+    .view-content { white-space: pre-wrap; line-height: 1.55; font-size: 14px; }
+    .view-note { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 12px; border-radius: 6px; white-space: pre-wrap; font-size: 13px; color: #78350f; }
+    .row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+    .row label { font-weight: 700; font-size: 13px; }
+    .inp, .txt { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    .txt.big { height: 210px; resize: none; }
+    .txt.small { height: 75px; resize: none; }
+    .btn { padding: 7px 12px; border-radius: 6px; border: none; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-blue { background: #0284c7; color: #ffffff; }
+    .btn-gray { background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; }
+    .btn-green { background: #10b981; color: #ffffff; }
+    .btn-red { background: #ef4444; color: #ffffff; }
+    .msg { position: fixed; right: 16px; bottom: 16px; background: #0f172a; color: #ffffff; padding: 8px 14px; border-radius: 6px; font-size: 13px; display: none; }
+    .msg.show { display: block; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">CÔNG CỤ Y KHOA</div>
+    <div class="tabs">
+      <button type="button" class="tab-btn active" data-panel="p1">Protocol phẫu thuật, thủ thuật</button>
+      <button type="button" class="tab-btn" data-panel="p2">Công cụ hỗ trợ 2 (Dự phòng)</button>
+    </div>
+    <div class="top-actions">
+      <button type="button" class="btn btn-gray" id="btnExport">Xuất dữ liệu</button>
+      <button type="button" class="btn btn-gray" id="btnImport">Nhập dữ liệu</button>
+      <input type="file" id="fileInput" accept=".json" style="display:none">
+    </div>
+  </header>
+
+  <main>
+    <section id="p1" class="panel active">
+      <div class="left">
+        <div class="left-top">
+          <button type="button" class="btn btn-blue" id="btnNew">+ Nhập protocol mới</button>
+          <input type="text" class="search" id="txtSearch" placeholder="Tìm tên phẫu thuật, thủ thuật...">
+        </div>
+        <ul class="list" id="ulList"></ul>
+      </div>
+      <div class="right" id="rightBox"></div>
+    </section>
+
+    <section id="p2" class="panel">
+      <div class="right">
+        <div class="right-body">
+          <p><strong>Khu vực tích hợp công cụ tiếp theo</strong></p>
+          <p>Sẵn sàng bổ sung các tab công cụ lâm sàng khác mà không ảnh hưởng Tab Protocol.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="msg" id="msgBox"></div>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", function () {
+      var STORE_KEY = "cong_cu_y_khoa_protocols_vi_v2";
+      var dataList = [];
+      var activeId = null;
+
+      function esc(s) {
+        return String(s || "")
+          .replace(/&/g, "&")
+          .replace(/</g, "<")
+          .replace(/>/g, ">")
+          .replace(/"/g, """)
+          .replace(/'/g, "'");
+      }
+
+      function notify(text) {
+        var box = document.getElementById("msgBox");
+        box.textContent = text;
+        box.className = "msg show";
+        setTimeout(function () { box.className = "msg"; }, 2000);
+      }
+
+      function saveData() {
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(dataList)); } catch (e) {}
+      }
+
+      function loadData() {
+        try {
+          var raw = localStorage.getItem(STORE_KEY);
+          var arr = raw ? JSON.parse(raw) : [];
+          dataList = Array.isArray(arr) ? arr.map(function (item, idx) {
+            return {
+              id: String(item.id || ("id_" + idx + "_" + Date.now())),
+              title: String(item.title || ""),
+              content: String(item.content || ""),
+              note: String(item.note || ""),
+              time: String(item.time || new Date().toLocaleString("vi-VN"))
+            };
+          }) : [];
+        } catch (e) {
+          dataList = [];
+        }
+      }
+
+      function renderList() {
+        var ul = document.getElementById("ulList");
+        var kw = document.getElementById("txtSearch").value.toLowerCase().trim();
+        var rows = dataList.filter(function (x) { return x.title.toLowerCase().indexOf(kw) !== -1; });
+        ul.innerHTML = "";
+        if (!rows.length) {
+          ul.innerHTML = "<li style='padding:12px;color:#64748b;font-size:13px;'>Chưa có protocol. Bấm + Nhập protocol mới.</li>";
+          return;
+        }
+        rows.forEach(function (x) {
+          var li = document.createElement("li");
+          li.className = "item" + (x.id === activeId ? " active" : "");
+          li.innerHTML = "<div class='item-title'>" + esc(x.title) + "</div><div class='item-sub'>" + (x.note ? "[Ghi chú] " : "") + esc(x.time) + "</div>";
+          li.onclick = function () { showItem(x.id); };
+          ul.appendChild(li);
+        });
+      }
+
+      function showItem(id) {
+        var found = dataList.find(function (x) { return x.id === id; });
+        if (!found) return;
+        activeId = found.id;
+        renderList();
+        var noteSec = found.note ? "<div class='view-note'><strong>Ghi chú:</strong>\n" + esc(found.note) + "</div>" : "";
+        document.getElementById("rightBox").innerHTML =
+          "<div class='right-top'>" +
+            "<div class='right-title'>" + esc(found.title) + "</div>" +
+            "<div class='btns'>" +
+              "<button type='button' class='btn btn-gray' id='bEdit'>Chỉnh sửa</button>" +
+              "<button type='button' class='btn btn-gray' id='bCopy'>Sao chép protocol</button>" +
+              "<button type='button' class='btn btn-red' id='bDel'>Xóa protocol</button>" +
+            "</div>" +
+          "</div>" +
+          "<div class='right-body'>" +
+            "<div class='view-content'>" + esc(found.content) + "</div>" +
+            noteSec +
+          "</div>";
+
+        document.getElementById("bEdit").onclick = function () { openForm(found.id); };
+        document.getElementById("bCopy").onclick = function () { copyItem(found.id); };
+        document.getElementById("bDel").onclick = function () { delItem(found.id); };
+      }
+
+      function openForm(editId) {
+        var item = editId ? dataList.find(function (x) { return x.id === editId; }) : null;
+        var cur = item || { title: "", content: "", note: "" };
+        document.getElementById("rightBox").innerHTML =
+          "<div class='right-top'>" +
+            "<div class='right-title'>" + (item ? "Chỉnh sửa protocol" : "Nhập protocol mới") + "</div>" +
+            "<div class='btns'>" +
+              "<button type='button' class='btn btn-gray' id='bCancel'>Hủy</button>" +
+              "<button type='button' class='btn btn-green' id='bSave'>Lưu</button>" +
+            "</div>" +
+          "</div>" +
+          "<div class='right-body'>" +
+            "<div class='row'><label for='fTitle'>Tên phẫu thuật, thủ thuật</label><input type='text' class='inp' id='fTitle' value='" + esc(cur.title) + "'></div>" +
+            "<div class='row'><label for='fContent'>Nội dung protocol</label><textarea class='txt big' id='fContent'>" + esc(cur.content) + "</textarea></div>" +
+            "<div class='row'><label for='fNote'>Ghi chú</label><textarea class='txt small' id='fNote'>" + esc(cur.note) + "</textarea></div>" +
+          "</div>";
+
+        document.getElementById("bCancel").onclick = function () {
+          if (item) showItem(item.id);
+          else openForm(null);
+        };
+
+        document.getElementById("bSave").onclick = function () {
+          var t = document.getElementById("fTitle").value.trim();
+          var c = document.getElementById("fContent").value.trim();
+          var n = document.getElementById("fNote").value.trim();
+          if (!t || !c) {
+            notify("Vui lòng nhập Tên và Nội dung protocol.");
+            return;
+          }
+          var now = new Date().toLocaleString("vi-VN");
+          if (item) {
+            item.title = t;
+            item.content = c;
+            item.note = n;
+            item.time = now;
+            activeId = item.id;
+          } else {
+            var created = { id: "p_" + Date.now(), title: t, content: c, note: n, time: now };
+            dataList.unshift(created);
+            activeId = created.id;
+          }
+          saveData();
+          renderList();
+          showItem(activeId);
+          notify("Đã lưu protocol.");
+        };
+      }
+
+      function copyItem(id) {
+        var found = dataList.find(function (x) { return x.id === id; });
+        if (!found) return;
+        var cloned = {
+          id: "p_" + Date.now(),
+          title: found.title + " (Bản sao)",
+          content: found.content,
+          note: found.note,
+          time: new Date().toLocaleString("vi-VN")
+        };
+        dataList.unshift(cloned);
+        activeId = cloned.id;
+        saveData();
+        renderList();
+        showItem(cloned.id);
+        notify("Đã sao chép protocol.");
+      }
+
+      function delItem(id) {
+        dataList = dataList.filter(function (x) { return x.id !== id; });
+        saveData();
+        if (activeId === id) {
+          activeId = dataList.length ? dataList[0].id : null;
+        }
+        renderList();
+        if (activeId) showItem(activeId);
+        else openForm(null);
+        notify("Đã xóa protocol.");
+      }
+
+      document.querySelectorAll(".tab-btn").forEach(function (b) {
+        b.onclick = function () {
+          var target = b.getAttribute("data-panel");
+          document.querySelectorAll(".tab-btn").forEach(function (x) { x.classList.toggle("active", x === b); });
+          document.querySelectorAll(".panel").forEach(function (p) { p.classList.toggle("active", p.id === target); });
+        };
+      });
+
+      document.getElementById("btnNew").onclick = function () { openForm(null); };
+      document.getElementById("txtSearch").oninput = renderList;
+
+      document.getElementById("btnExport").onclick = function () {
+        var blob = new Blob([JSON.stringify(dataList, null, 2)], { type: "application/json" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "protocol_ykhoa.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        notify("Đã xuất file.");
+      };
+
+      document.getElementById("btnImport").onclick = function () {
+        document.getElementById("fileInput").click();
+      };
+
+      document.getElementById("fileInput").onchange = function (e) {
+        var f = e.target.files && e.target.files[0];
+        if (!f) return;
+        var r = new FileReader();
+        r.onload = function (ev) {
+          try {
+            var arr = JSON.parse(ev.target.result);
+            if (!Array.isArray(arr)) return;
+            localStorage.setItem(STORE_KEY, JSON.stringify(arr));
+            loadData();
+            activeId = dataList.length ? dataList[0].id : null;
+            renderList();
+            if (activeId) showItem(activeId);
+            else openForm(null);
+            notify("Đã nhập dữ liệu.");
+          } catch (err) {}
+        };
+        r.readAsText(f);
+        e.target.value = "";
+      };
+
+      loadData();
+      renderList();
+      if (dataList.length) showItem(dataList[0].id);
+      else openForm(null);
+    });
+  </script>
+</body>
+</html>
