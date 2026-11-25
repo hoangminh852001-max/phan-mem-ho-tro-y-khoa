@@ -8,955 +8,1034 @@
 
 <style>
 :root {
-  --primary:#087eae;
-  --primary-dark:#05658f;
-  --primary-light:#e9f5fb;
-  --teal:#159b91;
-  --bg:#f3f6fa;
-  --white:#ffffff;
-  --text:#1c2b3a;
-  --muted:#718096;
-  --border:#e1e8ef;
-  --red:#dc4b55;
-  --shadow:0 3px 14px rgba(24,54,82,.055);
+  --primary:#087fb9;
+  --primary-dark:#05628f;
+  --light:#eaf6fc;
+  --bg:#f1f5f9;
+  --border:#dce5ee;
+  --text:#1e293b;
+  --muted:#64748b;
 }
-* {box-sizing:border-box}
-body {
-  margin:0;
-  height:100vh;
-  overflow:hidden;
-  font-family:"Segoe UI",Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
 }
-button,input,textarea {font:inherit}
-button {cursor:pointer}
-button:focus-visible,input:focus-visible,textarea:focus-visible {
-  outline:3px solid #159b9140;
-  outline-offset:2px;
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+header{
+  height:72px;background:white;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;gap:16px;position:relative;z-index:2;
 }
-
-/* HEADER */
-.header {
-  height:72px;
-  background:var(--white);
-  border-bottom:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 25px;
-  gap:15px;
+.brand{font-size:23px;font-weight:800;color:var(--primary);white-space:nowrap}
+.header-actions{display:flex;gap:9px;align-items:center}
+.btn{
+  border:0;border-radius:8px;padding:10px 15px;
+  font-weight:700;font-size:13px;transition:.15s;
 }
-.brand {
-  display:flex;
-  align-items:center;
-  gap:12px;
-  min-width:0;
+.btn-primary{background:var(--primary);color:white}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-outline{background:white;border:1px solid #cbd5e1;color:#334155}
+.btn-outline:hover{background:#f1f5f9}
+.btn-danger{background:#fee2e2;color:#b91c1c}
+.btn-success{background:#059669;color:white}
+.btn-small{padding:8px 11px;font-size:12px}
+.tabbar{
+  background:white;border-bottom:1px solid var(--border);
+  display:flex;padding:0 22px;gap:8px;
 }
-.brand-icon {
-  width:43px;height:43px;
-  border-radius:12px;
-  display:grid;place-items:center;
-  color:white;
-  background:linear-gradient(135deg,#0787bd,#16a49b);
-  font-size:23px;font-weight:800;
+.tab{
+  border:0;background:white;padding:17px 18px;
+  color:var(--muted);font-weight:700;
+  border-bottom:3px solid transparent;
 }
-.brand-name {
-  font-size:21px;
-  font-weight:800;
-  letter-spacing:.35px;
-  color:#087eae;
+.tab.active{color:var(--primary);border-color:var(--primary)}
+main{padding:16px;height:calc(100vh - 124px);min-height:500px}
+.workspace{display:flex;gap:15px;height:100%}
+.sidebar{
+  width:310px;min-width:270px;background:white;
+  border:1px solid var(--border);border-radius:12px;
+  display:flex;flex-direction:column;overflow:hidden;
 }
-.brand-subtitle {
-  font-size:11px;
-  color:var(--muted);
-  margin-top:3px;
-  letter-spacing:.5px;
+.sidebar-top{padding:14px;border-bottom:1px solid var(--border)}
+.btn-new{width:100%;padding:13px;font-size:14px}
+.search{
+  width:100%;margin-top:10px;padding:12px;
+  border:1px solid var(--border);border-radius:8px;
+  outline:none;font-size:14px;
 }
-.header-right {
-  display:flex;
-  align-items:center;
-  gap:9px;
+.search:focus,.field:focus{border-color:var(--primary)}
+.section-label{
+  padding:13px 14px 6px;color:var(--muted);
+  font-size:11px;font-weight:800;letter-spacing:.6px;
+  text-transform:uppercase;
 }
-
-/* BUTTONS */
-.btn {
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:7px;
-  padding:9px 14px;
-  border-radius:8px;
-  border:1px solid var(--border);
-  background:white;
-  color:var(--text);
-  font-size:13px;
-  font-weight:650;
-  transition:.18s;
+.folders{padding:0 9px 10px;border-bottom:1px solid var(--border)}
+.folder{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;padding:10px 11px;margin:2px 0;
+  border:0;border-radius:7px;background:white;
+  color:#334155;text-align:left;font-size:13px;font-weight:600;
 }
-.btn:hover {background:#f2f7fa;border-color:#b7cbd9}
-.btn-primary {
-  background:var(--primary);
-  border-color:var(--primary);
-  color:white;
+.folder:hover{background:#f1f5f9}
+.folder.active{background:var(--light);color:var(--primary-dark)}
+.folder-name{display:flex;align-items:center;gap:9px}
+.folder-count{
+  background:#e2e8f0;padding:3px 8px;border-radius:20px;
+  font-size:11px;color:#475569;
 }
-.btn-primary:hover {
-  background:var(--primary-dark);
-  border-color:var(--primary-dark);
+.folder.active .folder-count{background:#c8e9fa;color:#075985}
+.protocol-list{overflow:auto;flex:1}
+.protocol-item{
+  padding:13px 14px;border-bottom:1px solid #f1f5f9;
+  cursor:pointer;border-left:3px solid transparent;
 }
-.btn-teal {background:var(--teal);color:white;border-color:var(--teal)}
-.btn-teal:hover {background:#10867e;color:white}
-.btn-danger {background:var(--red);color:white;border-color:var(--red)}
-.btn-danger:hover {background:#c63b45;color:white}
-.btn-block {width:100%;padding:12px}
-
-/* MAIN */
-.main {
-  height:calc(100vh - 72px);
-  padding:17px 20px 20px;
-  display:flex;
-  flex-direction:column;
-  min-height:0;
+.protocol-item:hover{background:#f8fafc}
+.protocol-item.active{
+  background:#eaf6fc;border-left-color:var(--primary);
 }
-.page-heading {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:15px;
-  min-height:45px;
+.protocol-name{font-size:13px;font-weight:700;line-height:1.5}
+.protocol-meta{font-size:11px;color:var(--muted);margin-top:6px}
+.sidebar-footer{
+  padding:11px 14px;border-top:1px solid var(--border);
+  color:var(--muted);font-size:12px;
 }
-.page-title {
-  display:flex;
-  align-items:center;
+.content{
+  flex:1;min-width:0;background:white;
+  border:1px solid var(--border);border-radius:12px;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.content-header{
+  min-height:59px;padding:12px 18px;
+  background:#f8fafc;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;
+  align-items:center;gap:10px;flex-wrap:wrap;
+}
+.content-title{font-size:16px;font-weight:800}
+.content-actions{display:flex;gap:7px;flex-wrap:wrap}
+.content-body{padding:22px;overflow-y:auto;flex:1}
+.welcome{
+  height:100%;display:flex;align-items:center;
+  justify-content:center;text-align:center;color:var(--muted);
+}
+.welcome-icon{font-size:50px;margin-bottom:14px}
+.welcome h2{color:#334155;font-size:20px;margin:0 0 10px}
+.welcome p{font-size:14px;line-height:1.6}
+.field-group{margin-bottom:20px}
+.field-group label{
+  display:block;font-size:14px;font-weight:700;
+  margin-bottom:9px;
+}
+.field{
+  width:100%;padding:12px;border:1px solid #cbd5e1;
+  border-radius:8px;outline:none;font-size:14px;
+}
+textarea.field{resize:vertical;line-height:1.65}
+.protocol-text{min-height:260px}
+.note-text{min-height:90px}
+.category-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
   gap:10px;
-  font-size:19px;
-  font-weight:750;
-  color:#1b3a50;
 }
-.page-title-icon {
-  width:35px;height:35px;
-  display:grid;place-items:center;
-  background:var(--primary-light);
-  border-radius:9px;
-  color:var(--primary);
-  font-size:18px;
+.category-choice{
+  border:1px solid var(--border);border-radius:8px;
+  padding:13px;display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:600;cursor:pointer;
 }
-.page-caption {
-  font-size:12px;
-  color:var(--muted);
+.category-choice:hover{background:#f0f9ff}
+.category-choice:has(input:checked){
+  background:#eaf6fc;border-color:var(--primary);color:var(--primary-dark);
 }
-
-/* WORKSPACE */
-.workspace {
-  flex:1;
-  min-height:0;
-  display:grid;
-  grid-template-columns:330px minmax(0,1fr);
-  gap:16px;
+.category-choice input{width:17px;height:17px;accent-color:var(--primary)}
+.hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
+.image-area{
+  border:2px dashed #b9d3e3;border-radius:10px;
+  padding:20px;background:#f8fcff;text-align:center;
 }
-.panel {
-  min-height:0;
-  background:white;
-  border:1px solid var(--border);
-  border-radius:12px;
-  box-shadow:var(--shadow);
-  overflow:hidden;
+.image-area.dragover{background:#e0f2fe;border-color:var(--primary)}
+.image-area p{font-size:13px;color:var(--muted);line-height:1.6}
+.image-buttons{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.image-grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;margin-top:15px;
 }
-.sidebar {
-  display:flex;
-  flex-direction:column;
+.image-card{
+  position:relative;border:1px solid var(--border);
+  border-radius:8px;overflow:hidden;background:white;
 }
-.sidebar-top {
-  padding:16px;
-  border-bottom:1px solid var(--border);
+.image-card img{width:100%;height:120px;object-fit:contain;display:block;background:#f1f5f9}
+.image-card button{
+  position:absolute;top:5px;right:5px;
+  border:0;border-radius:50%;width:25px;height:25px;
+  background:#dc2626;color:white;font-weight:bold;
 }
-.sidebar-heading {
-  font-size:14px;
-  font-weight:750;
-  color:#34495b;
-  margin-bottom:13px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+.image-card span{
+  display:block;padding:5px;text-align:center;
+  font-size:11px;color:var(--muted);
 }
-.count-badge {
-  padding:3px 9px;
-  background:#eaf4f9;
-  color:var(--primary);
-  border-radius:20px;
-  font-size:11px;
-  font-weight:700;
+.image-view-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:15px;margin-top:12px;
 }
-.search-wrap {position:relative;margin-top:12px}
-.search-icon {
-  position:absolute;
-  left:12px;top:50%;
-  transform:translateY(-50%);
-  color:#8494a5;
-  font-size:17px;
-  pointer-events:none;
+.image-view-grid img{
+  width:100%;max-height:400px;object-fit:contain;
+  background:#f8fafc;border:1px solid var(--border);border-radius:8px;
 }
-.search {
-  height:42px;
-  width:100%;
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:0 12px 0 37px;
-  outline:none;
-  font-size:13px;
-  background:#fbfcfe;
+.tag{
+  display:inline-block;padding:5px 10px;border-radius:20px;
+  background:#e0f2fe;color:#0369a1;font-size:11px;
+  font-weight:700;margin:0 5px 7px 0;
 }
-.search:focus,.field input:focus,.field textarea:focus {
-  border-color:var(--primary);
-  box-shadow:0 0 0 3px #087eae15;
-  background:white;
+.view-section{margin-bottom:25px}
+.view-section h3{
+  font-size:15px;padding-bottom:10px;
+  border-bottom:1px solid var(--border);margin-bottom:12px;
 }
-.list-area {flex:1;overflow-y:auto;min-height:0}
-.protocol-list {list-style:none;margin:0;padding:7px}
-.protocol-item {
-  padding:12px;
-  border-radius:8px;
-  margin-bottom:4px;
-  border:1px solid transparent;
-  cursor:pointer;
-  transition:.15s;
+.view-text{white-space:pre-wrap;line-height:1.8;font-size:14px;color:#334155}
+.note-view{
+  background:#fffbeb;border-left:4px solid #f59e0b;
+  padding:14px;border-radius:7px;white-space:pre-wrap;
+  font-size:13px;line-height:1.7;
 }
-.protocol-item:hover {
-  background:#f5f9fc;
-  border-color:#e4edf3;
+.empty-message{text-align:center;padding:30px;color:var(--muted);font-size:13px}
+.msg{
+  position:fixed;bottom:20px;right:20px;z-index:100;
+  padding:13px 19px;border-radius:9px;background:#0f172a;
+  color:white;font-size:13px;box-shadow:0 5px 20px #0002;
+  display:none;max-width:90%;
 }
-.protocol-item.active {
-  background:#eaf5fa;
-  border-color:#c9e3ef;
-  border-left:3px solid var(--primary);
+.msg.show{display:block}
+.modal-bg{
+  position:fixed;inset:0;background:#0f172a88;
+  display:none;align-items:center;justify-content:center;
+  z-index:90;padding:15px;
 }
-.protocol-name {
-  font-size:13px;
-  font-weight:700;
-  line-height:1.45;
-  overflow-wrap:anywhere;
+.modal-bg.show{display:flex}
+.modal{
+  background:white;border-radius:12px;padding:23px;
+  max-width:420px;width:100%;box-shadow:0 15px 40px #0003;
 }
-.protocol-meta {
-  margin-top:5px;
-  color:var(--muted);
-  font-size:11px;
-}
-.list-empty {
-  min-height:190px;
-  padding:25px 20px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  color:var(--muted);
-}
-.list-empty-icon {
-  font-size:28px;
-  margin-bottom:10px;
-  opacity:.7;
-}
-.list-empty strong {
-  font-size:13px;
-  color:#536779;
-  margin-bottom:5px;
-}
-.list-empty span {font-size:12px;line-height:1.5}
-.sidebar-footer {
-  border-top:1px solid var(--border);
-  padding:11px 15px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  color:var(--muted);
-  font-size:11px;
-}
-
-/* DETAIL PANEL */
-.detail {
-  display:flex;
-  flex-direction:column;
-}
-.detail-header {
-  min-height:62px;
-  padding:12px 18px;
-  border-bottom:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  background:#fcfdfe;
-}
-.detail-heading {
-  font-size:15px;
-  font-weight:750;
-  color:#29465a;
-  overflow-wrap:anywhere;
-}
-.detail-actions {
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-  gap:7px;
-}
-.detail-body {
-  flex:1;
-  min-height:0;
-  overflow-y:auto;
-  padding:23px;
-}
-.empty-state {
-  height:100%;
-  min-height:270px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  padding:20px;
-}
-.empty-art {
-  width:75px;height:75px;
-  border-radius:22px;
-  background:linear-gradient(135deg,#e9f5fb,#e7f7f4);
-  display:grid;place-items:center;
-  color:var(--primary);
-  font-size:34px;
-  margin-bottom:17px;
-}
-.empty-state h3 {
-  font-size:17px;
-  margin:0 0 8px;
-  color:#29465a;
-}
-.empty-state p {
-  margin:0;
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.6;
-  max-width:380px;
-}
-
-/* CONTENT */
-.content-card {
-  border:1px solid var(--border);
-  border-radius:10px;
-  margin-bottom:18px;
-  overflow:hidden;
-}
-.content-card-heading {
-  background:#f6f9fc;
-  padding:12px 16px;
-  font-size:13px;
-  font-weight:750;
-  color:#365267;
-  border-bottom:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.content-card-body {
-  padding:17px;
-  font-size:14px;
-  line-height:1.75;
-  white-space:pre-wrap;
-  overflow-wrap:anywhere;
-}
-.note-card {
-  background:#fffaf0;
-  border:1px solid #f1e3bf;
-  border-radius:9px;
-  padding:15px;
-  margin-top:15px;
-}
-.note-heading {
-  font-size:13px;
-  font-weight:750;
-  color:#95671a;
-  margin-bottom:8px;
-}
-.note-body {
-  white-space:pre-wrap;
-  font-size:13px;
-  line-height:1.65;
-  color:#70551f;
-  overflow-wrap:anywhere;
-}
-
-/* FORM */
-.form-intro {
-  font-size:12px;
-  color:var(--muted);
-  margin:0 0 22px;
-  line-height:1.6;
-}
-.form-wrap {max-width:1050px}
-.field {margin-bottom:21px}
-.field label {
-  display:block;
-  font-size:13px;
-  font-weight:750;
-  color:#34495b;
-  margin-bottom:8px;
-}
-.required {color:var(--red)}
-.field input,.field textarea {
-  display:block;
-  width:100%;
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:12px 13px;
-  outline:none;
-  font-size:13px;
-  line-height:1.6;
-  color:var(--text);
-  background:#fbfcfe;
-}
-.field textarea {
-  min-height:280px;
-  resize:vertical;
-}
-.field textarea.note-input {min-height:100px}
-.field .hint {
-  display:block;
-  font-size:11px;
-  color:var(--muted);
-  margin-top:6px;
-}
-.form-bottom {
-  display:flex;
-  gap:8px;
-  justify-content:flex-end;
-  padding-top:6px;
-}
-
-/* TOAST */
-.toast {
-  position:fixed;
-  z-index:99;
-  right:22px;
-  bottom:22px;
-  background:#203747;
-  color:white;
-  border-radius:9px;
-  padding:13px 18px;
-  box-shadow:0 5px 22px #0002;
-  font-size:13px;
-  opacity:0;
-  transform:translateY(8px);
-  pointer-events:none;
-  transition:.2s;
-}
-.toast.show {opacity:1;transform:translateY(0)}
-
-@media(max-width:760px) {
-  body {height:100dvh}
-  .header {height:auto;min-height:65px;padding:10px 13px}
-  .brand-name {font-size:17px}
-  .brand-subtitle {font-size:9px}
-  .header-right .btn {padding:8px;font-size:11px}
-  .main {height:calc(100dvh - 65px);padding:10px}
-  .page-heading {margin-bottom:9px}
-  .page-title {font-size:15px}
-  .page-caption {display:none}
-  .workspace {
-    grid-template-columns:1fr;
-    grid-template-rows:minmax(180px,35%) minmax(350px,1fr);
-    gap:10px;
-  }
-  .detail-header {align-items:flex-start;flex-direction:column}
-  .detail-actions {justify-content:flex-start}
-  .detail-body {padding:14px}
-  .field textarea {min-height:220px}
+.modal h3{margin:0 0 12px}
+.modal p{font-size:14px;line-height:1.6;color:var(--muted)}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+@media(max-width:750px){
+  header{height:auto;padding:13px;align-items:flex-start;flex-direction:column}
+  .brand{font-size:19px}
+  .tabbar{padding:0 8px;overflow-x:auto}
+  .tab{white-space:nowrap;padding:13px 10px}
+  main{height:auto;min-height:calc(100vh - 130px);padding:9px}
+  .workspace{flex-direction:column;height:auto}
+  .sidebar{width:100%;min-width:0;max-height:400px}
+  .content{min-height:550px}
+  .category-grid{grid-template-columns:1fr}
+  .image-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
 </head>
 
 <body>
 
-<header class="header">
-  <div class="brand">
-    <div class="brand-icon">✚</div>
-    <div>
-      <div class="brand-name">CÔNG CỤ Y KHOA</div>
-      <div class="brand-subtitle">HỖ TRỢ CHUYÊN MÔN VÀ LÂM SÀNG</div>
-    </div>
-  </div>
-
-  <div class="header-right">
-    <button class="btn" id="btnExport" type="button">↓ Xuất dữ liệu</button>
-    <button class="btn" id="btnImport" type="button">↑ Nhập dữ liệu</button>
-    <input type="file" id="fileInput" accept=".json,application/json" hidden>
+<header>
+  <div class="brand">✦ CÔNG CỤ Y KHOA</div>
+  <div class="header-actions">
+    <button class="btn btn-outline" onclick="exportData()">Xuất dữ liệu</button>
+    <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">Nhập dữ liệu</button>
+    <input type="file" id="importFile" accept=".json,application/json" hidden onchange="importData(event)">
   </div>
 </header>
 
-<main class="main">
-  <div class="page-heading">
-    <div class="page-title">
-      <div class="page-title-icon">▤</div>
-      Protocol phẫu thuật, thủ thuật
+<nav class="tabbar">
+  <button class="tab active" onclick="switchTab(this,'protocolPanel')">
+    Protocol phẫu thuật, thủ thuật
+  </button>
+  <button class="tab" onclick="switchTab(this,'backupPanel')">
+    Công cụ hỗ trợ 2 (Dự phòng)
+  </button>
+</nav>
+
+<main>
+<section class="panel active" id="protocolPanel">
+
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <button class="btn btn-primary btn-new" onclick="newProtocol()">
+        + Nhập protocol mới
+      </button>
+      <input class="search" id="searchInput"
+        placeholder="Tìm tên phẫu thuật, thủ thuật..."
+        oninput="renderList()">
     </div>
-    <div class="page-caption">QUẢN LÝ VÀ TRA CỨU PROTOCOL CHUYÊN MÔN</div>
-  </div>
 
-  <div class="workspace">
+    <div class="section-label">Thư mục phân loại</div>
+    <div class="folders" id="folderList"></div>
 
-    <aside class="panel sidebar">
-      <div class="sidebar-top">
-        <div class="sidebar-heading">
-          <span>DANH SÁCH PROTOCOL</span>
-          <span class="count-badge" id="countBadge">0</span>
+    <ul class="protocol-list" id="protocolList"></ul>
+    <div class="sidebar-footer" id="totalCount">0 protocol</div>
+  </aside>
+
+  <section class="content">
+    <div class="content-header">
+      <div class="content-title" id="contentTitle">Nội dung protocol</div>
+      <div class="content-actions" id="contentActions"></div>
+    </div>
+    <div class="content-body" id="contentBody">
+      <div class="welcome">
+        <div>
+          <div class="welcome-icon">📋</div>
+          <h2>Chưa có protocol nào</h2>
+          <p>Chọn một protocol hoặc nhấn “Nhập protocol mới” để bắt đầu.</p>
         </div>
+      </div>
+    </div>
+  </section>
+</section>
 
-        <button class="btn btn-primary btn-block" id="btnNew" type="button">
-          ＋ &nbsp;Nhập protocol mới
-        </button>
-
-        <div class="search-wrap">
-          <span class="search-icon">⌕</span>
-          <input class="search" id="txtSearch" type="search"
-            placeholder="Tìm tên phẫu thuật, thủ thuật..." autocomplete="off">
+<section class="panel" id="backupPanel">
+  <div class="content" style="width:100%">
+    <div class="content-header">
+      <div class="content-title">Công cụ hỗ trợ 2 (Dự phòng)</div>
+    </div>
+    <div class="content-body">
+      <div class="welcome">
+        <div>
+          <div class="welcome-icon">🛠️</div>
+          <h2>Khu vực dự phòng</h2>
+          <p>Có thể bổ sung các công cụ y khoa khác tại đây trong tương lai.</p>
         </div>
       </div>
-
-      <div class="list-area">
-        <ul class="protocol-list" id="protocolList"></ul>
-      </div>
-
-      <div class="sidebar-footer">
-        <span>Tổng số protocol</span>
-        <strong id="countLabel">0</strong>
-      </div>
-    </aside>
-
-    <section class="panel detail" id="detailPanel"></section>
-
+    </div>
   </div>
+</section>
 </main>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="msg" id="message"></div>
+
+<div class="modal-bg" id="confirmModal">
+  <div class="modal">
+    <h3 id="modalTitle">Xác nhận</h3>
+    <p id="modalText"></p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Hủy</button>
+      <button class="btn btn-danger" id="confirmButton">Xác nhận</button>
+    </div>
+  </div>
+</div>
 
 <script>
-(() => {
 "use strict";
+
+/* ==============================
+   CẤU HÌNH VÀ DỮ LIỆU
+================================ */
 
 const STORE_KEY = "cong_cu_y_khoa_protocols_vi_v3";
 
-let protocols = [];
-let selectedId = null;
-let toastTimer;
+const CATEGORIES = [
+  "Chi trên",
+  "Chi dưới",
+  "Ngoại Tổng hợp",
+  "Phẫu thuật khác",
+  "Thủ thuật khác"
+];
+
+let dataList = [];
+let activeId = null;
+let activeFolder = "Tất cả";
+let editingId = null;
+let draftImages = [];
+let modalAction = null;
 
 const $ = id => document.getElementById(id);
 
-function makeId() {
-  return "p_" + Date.now().toString(36) + "_" +
-    Math.random().toString(36).slice(2,8);
+function uid(){
+  return Date.now().toString(36) +
+    Math.random().toString(36).slice(2,9);
 }
 
-function escapeHTML(value) {
+function esc(value){
   return String(value ?? "").replace(/[&<>"']/g, c => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#39;"
-  })[c]);
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  }[c]));
 }
 
-function notify(message) {
-  const el = $("toast");
-  el.textContent = message;
-  el.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove("show"),2600);
+function normalizeProtocol(p){
+  const images = Array.isArray(p.images) ? p.images :
+    Array.isArray(p.attachments) ? p.attachments : [];
+
+  let categories = p.categories || p.category || [];
+  if(typeof categories === "string") categories = [categories];
+  if(!Array.isArray(categories)) categories = [];
+
+  return {
+    id: String(p.id || uid()),
+    name: String(p.name || p.title || ""),
+    content: String(p.content || p.protocol || ""),
+    note: String(p.note || p.notes || ""),
+    categories: categories.filter(c => CATEGORIES.includes(c)),
+    images: images.filter(x => typeof x === "string").slice(0,4),
+    createdAt: p.createdAt || new Date().toISOString(),
+    updatedAt: p.updatedAt || p.createdAt || new Date().toISOString()
+  };
 }
 
-function loadData() {
-  try {
+function loadData(){
+  try{
     const raw = localStorage.getItem(STORE_KEY);
-    const data = raw ? JSON.parse(raw) : [];
-
-    protocols = Array.isArray(data) ? data.map((item,index) => ({
-      id:String(item.id || ("old_" + index + "_" + Date.now())),
-      title:String(item.title || item.name || ""),
-      content:String(item.content || ""),
-      note:String(item.note || ""),
-      time:String(item.time || "")
-    })) : [];
-
-  } catch(error) {
-    protocols = [];
-    notify("Không thể đọc dữ liệu đã lưu.");
+    if(raw){
+      const parsed = JSON.parse(raw);
+      dataList = Array.isArray(parsed) ? parsed.map(normalizeProtocol) : [];
+    }
+  }catch(e){
+    dataList = [];
+    notify("Không đọc được dữ liệu lưu trên trình duyệt.");
   }
+  renderAll();
 }
 
-function saveData() {
-  try {
-    localStorage.setItem(STORE_KEY,JSON.stringify(protocols));
+function saveData(){
+  try{
+    localStorage.setItem(STORE_KEY,JSON.stringify(dataList));
     return true;
-  } catch(error) {
-    notify("Lưu thất bại. Vui lòng kiểm tra bộ nhớ trình duyệt.");
+  }catch(e){
+    notify("Không đủ bộ nhớ để lưu. Hãy giảm dung lượng ảnh hoặc xuất dữ liệu dự phòng.");
     return false;
   }
 }
 
-function renderList() {
-  const list = $("protocolList");
-  const keyword = $("txtSearch").value.trim().toLocaleLowerCase("vi");
+function notify(text){
+  const box=$("message");
+  box.textContent=text;
+  box.classList.add("show");
+  clearTimeout(notify.timer);
+  notify.timer=setTimeout(()=>box.classList.remove("show"),3000);
+}
 
-  const filtered = protocols.filter(item =>
-    item.title.toLocaleLowerCase("vi").includes(keyword)
-  );
+/* ==============================
+   GIAO DIỆN TAB VÀ THƯ MỤC
+================================ */
 
-  list.innerHTML = "";
+function switchTab(button,panelId){
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+  button.classList.add("active");
+  $(panelId).classList.add("active");
+}
 
-  if(filtered.length === 0) {
-    const li = document.createElement("li");
-    li.className = "list-empty";
+function countInFolder(folder){
+  if(folder==="Tất cả") return dataList.length;
+  if(folder==="Chưa phân loại")
+    return dataList.filter(p=>!p.categories.length).length;
+  return dataList.filter(p=>p.categories.includes(folder)).length;
+}
 
-    if(protocols.length === 0) {
-      li.innerHTML =
-        '<div class="list-empty-icon">▤</div>' +
-        '<strong>Chưa có protocol</strong>' +
-        '<span>Nhấn nút “Nhập protocol mới” để thêm nội dung đầu tiên.</span>';
-    } else {
-      li.innerHTML =
-        '<div class="list-empty-icon">⌕</div>' +
-        '<strong>Không tìm thấy kết quả</strong>' +
-        '<span>Vui lòng thử từ khóa khác.</span>';
+function renderFolders(){
+  const folders=["Tất cả",...CATEGORIES,"Chưa phân loại"];
+  $("folderList").innerHTML=folders.map(folder=>{
+    const icon=folder==="Tất cả"?"📚":
+      folder==="Chưa phân loại"?"📁":"📂";
+    return `
+      <button class="folder ${activeFolder===folder?"active":""}"
+        onclick="selectFolder('${esc(folder)}')">
+        <span class="folder-name">
+          <span>${icon}</span>${esc(folder)}
+        </span>
+        <span class="folder-count">${countInFolder(folder)}</span>
+      </button>`;
+  }).join("");
+}
+
+function selectFolder(folder){
+  activeFolder=folder;
+  activeId=null;
+  renderAll();
+  showWelcome();
+}
+
+function renderList(){
+  const keyword=$("searchInput").value.trim().toLowerCase();
+
+  let list=dataList.filter(p=>{
+    const inFolder=activeFolder==="Tất cả" ||
+      (activeFolder==="Chưa phân loại" && !p.categories.length) ||
+      p.categories.includes(activeFolder);
+
+    return inFolder && (
+      p.name.toLowerCase().includes(keyword) ||
+      p.content.toLowerCase().includes(keyword) ||
+      p.note.toLowerCase().includes(keyword)
+    );
+  });
+
+  list.sort((a,b)=>a.name.localeCompare(b.name,"vi"));
+
+  $("protocolList").innerHTML=list.length ? list.map(p=>`
+    <li class="protocol-item ${activeId===p.id?"active":""}"
+      onclick="selectProtocol('${p.id}')">
+      <div class="protocol-name">${esc(p.name)}</div>
+      <div class="protocol-meta">
+        ${p.categories.length ? esc(p.categories.join(" • ")) : "Chưa phân loại"}
+        ${p.images.length ? " • 🖼 "+p.images.length+" ảnh" : ""}
+      </div>
+    </li>
+  `).join("") :
+  `<div class="empty-message">Không tìm thấy protocol phù hợp.</div>`;
+
+  $("totalCount").textContent=list.length+" protocol";
+}
+
+function renderAll(){
+  renderFolders();
+  renderList();
+}
+
+function selectProtocol(id){
+  activeId=id;
+  const p=dataList.find(x=>x.id===id);
+  if(!p) return;
+  renderAll();
+  showProtocol(p);
+}
+
+/* ==============================
+   HIỂN THỊ PROTOCOL
+================================ */
+
+function showWelcome(){
+  $("contentTitle").textContent="Nội dung protocol";
+  $("contentActions").innerHTML="";
+  $("contentBody").innerHTML=`
+    <div class="welcome">
+      <div>
+        <div class="welcome-icon">📋</div>
+        <h2>Chưa chọn protocol</h2>
+        <p>Chọn một protocol ở danh sách bên trái<br>
+        hoặc nhấn “Nhập protocol mới” để bắt đầu.</p>
+      </div>
+    </div>`;
+}
+
+function showProtocol(p){
+  $("contentTitle").textContent=p.name;
+  $("contentActions").innerHTML=`
+    <button class="btn btn-outline btn-small" onclick="editProtocol('${p.id}')">✏ Chỉnh sửa</button>
+    <button class="btn btn-outline btn-small" onclick="duplicateProtocol('${p.id}')">▣ Sao chép</button>
+    <button class="btn btn-danger btn-small" onclick="deleteProtocol('${p.id}')">✕ Xóa</button>
+  `;
+
+  const tags=p.categories.length ?
+    p.categories.map(c=>`<span class="tag">${esc(c)}</span>`).join("") :
+    `<span class="tag">Chưa phân loại</span>`;
+
+  const images=p.images.length ? `
+    <div class="view-section">
+      <h3>Hình ảnh đính kèm (${p.images.length}/4)</h3>
+      <div class="image-view-grid">
+        ${p.images.map((src,i)=>`
+          <img src="${src}" alt="Hình ảnh ${i+1}" loading="lazy">
+        `).join("")}
+      </div>
+    </div>` : "";
+
+  $("contentBody").innerHTML=`
+    <div class="view-section">
+      <h3>Phân loại</h3>${tags}
+    </div>
+    <div class="view-section">
+      <h3>Nội dung protocol</h3>
+      <div class="view-text">${esc(p.content)||"Chưa có nội dung."}</div>
+    </div>
+    ${p.note ? `
+      <div class="view-section">
+        <h3>Ghi chú</h3>
+        <div class="note-view">${esc(p.note)}</div>
+      </div>` : ""}
+    ${images}
+    <div class="protocol-meta">
+      Ngày cập nhật: ${new Date(p.updatedAt).toLocaleString("vi-VN")}
+    </div>
+  `;
+}
+
+/* ==============================
+   NHẬP VÀ CHỈNH SỬA
+================================ */
+
+function newProtocol(){
+  editingId=null;
+  draftImages=[];
+  renderForm({
+    name:"",content:"",note:"",categories:[],images:[]
+  });
+}
+
+function editProtocol(id){
+  const p=dataList.find(x=>x.id===id);
+  if(!p) return;
+  editingId=id;
+  draftImages=[...p.images];
+  renderForm(p);
+}
+
+function renderForm(p){
+  $("contentTitle").textContent=editingId ?
+    "Chỉnh sửa protocol" : "Nhập protocol mới";
+
+  $("contentActions").innerHTML=`
+    <button class="btn btn-outline btn-small" onclick="cancelForm()">Hủy</button>
+    <button class="btn btn-primary btn-small" onclick="saveProtocol()">✓ Lưu protocol</button>
+  `;
+
+  $("contentBody").innerHTML=`
+    <div class="field-group">
+      <label>Tên phẫu thuật, thủ thuật <span style="color:red">*</span></label>
+      <input class="field" id="protocolName"
+        placeholder="Nhập tên phẫu thuật, thủ thuật..."
+        value="${esc(p.name)}">
+    </div>
+
+    <div class="field-group">
+      <label>Phân loại protocol <span style="color:red">*</span></label>
+      <div class="category-grid">
+        ${CATEGORIES.map((c,i)=>`
+          <label class="category-choice">
+            <input type="checkbox" class="category-check"
+              value="${esc(c)}"
+              ${p.categories.includes(c)?"checked":""}>
+            ${esc(c)}
+          </label>
+        `).join("")}
+      </div>
+      <div class="hint">Có thể chọn một hoặc nhiều nhóm phân loại cho cùng một protocol.</div>
+    </div>
+
+    <div class="field-group">
+      <label>Nội dung protocol <span style="color:red">*</span></label>
+      <textarea class="field protocol-text" id="protocolContent"
+        placeholder="Nhập nội dung protocol...">${esc(p.content)}</textarea>
+    </div>
+
+    <div class="field-group">
+      <label>Ghi chú</label>
+      <textarea class="field note-text" id="protocolNote"
+        placeholder="Nhập ghi chú nếu có...">${esc(p.note)}</textarea>
+    </div>
+
+    <div class="field-group">
+      <label>Hình ảnh đính kèm</label>
+      <div class="image-area" id="imageArea">
+        <div style="font-size:30px;margin-bottom:8px">🖼️</div>
+        <p>
+          Tải ảnh từ máy tính hoặc dán ảnh bằng <b>Ctrl + V</b>.<br>
+          Hỗ trợ tối đa 4 ảnh cho mỗi protocol.
+        </p>
+        <div class="image-buttons">
+          <button type="button" class="btn btn-outline btn-small"
+            onclick="document.getElementById('imageInput').click()">
+            + Chọn ảnh từ máy tính
+          </button>
+        </div>
+        <input type="file" id="imageInput" accept="image/*"
+          multiple hidden onchange="handleImageFiles(this.files)">
+      </div>
+      <div class="hint" id="imageCount"></div>
+      <div class="image-grid" id="imagePreview"></div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:9px;padding:10px 0">
+      <button class="btn btn-outline" onclick="cancelForm()">Hủy</button>
+      <button class="btn btn-primary" onclick="saveProtocol()">✓ Lưu protocol</button>
+    </div>
+  `;
+
+  renderImagePreview();
+  setupPaste();
+  setupDragDrop();
+}
+
+function cancelForm(){
+  const p=dataList.find(x=>x.id===editingId);
+  if(p) showProtocol(p);
+  else showWelcome();
+}
+
+/* ==============================
+   XỬ LÝ HÌNH ẢNH
+================================ */
+
+// Giới hạn kích thước và nén ảnh trước khi lưu.
+function compressImage(file){
+  return new Promise((resolve,reject)=>{
+    if(!file.type.startsWith("image/")){
+      reject(new Error("Tệp không phải hình ảnh."));
+      return;
     }
 
-    list.appendChild(li);
+    const reader=new FileReader();
 
-  } else {
-    filtered.forEach(item => {
-      const li = document.createElement("li");
-      li.className = "protocol-item" +
-        (item.id === selectedId ? " active" : "");
+    reader.onload=()=>{
+      const img=new Image();
 
-      li.tabIndex = 0;
-      li.setAttribute("role","button");
-      li.innerHTML =
-        '<div class="protocol-name">' + escapeHTML(item.title) + '</div>' +
-        '<div class="protocol-meta">' +
-        (item.note ? "Có ghi chú" : "Protocol chuyên môn") +
-        '</div>';
+      img.onload=()=>{
+        const MAX=1400;
+        let w=img.width,h=img.height;
 
-      li.addEventListener("click",() => showProtocol(item.id));
-      li.addEventListener("keydown",event => {
-        if(event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          showProtocol(item.id);
+        if(w>MAX || h>MAX){
+          const ratio=Math.min(MAX/w,MAX/h);
+          w=Math.round(w*ratio);
+          h=Math.round(h*ratio);
         }
-      });
 
-      list.appendChild(li);
-    });
+        const canvas=document.createElement("canvas");
+        canvas.width=w;
+        canvas.height=h;
+
+        const ctx=canvas.getContext("2d");
+        ctx.fillStyle="#ffffff";
+        ctx.fillRect(0,0,w,h);
+        ctx.drawImage(img,0,0,w,h);
+
+        resolve(canvas.toDataURL("image/jpeg",0.78));
+      };
+
+      img.onerror=()=>reject(new Error("Không đọc được ảnh."));
+      img.src=reader.result;
+    };
+
+    reader.onerror=()=>reject(new Error("Lỗi đọc tệp ảnh."));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleImageFiles(files){
+  const selected=Array.from(files || []);
+  if(!selected.length) return;
+
+  let added=0;
+
+  for(const file of selected){
+    if(draftImages.length>=4){
+      notify("Mỗi protocol chỉ được đính kèm tối đa 4 ảnh.");
+      break;
+    }
+
+    try{
+      const compressed=await compressImage(file);
+      if(draftImages.length<4){
+        draftImages.push(compressed);
+        added++;
+      }
+    }catch(e){
+      notify("Không thể thêm một hình ảnh. Vui lòng kiểm tra lại.");
+    }
   }
 
-  $("countBadge").textContent = protocols.length;
-  $("countLabel").textContent = protocols.length;
+  renderImagePreview();
+
+  if(added) notify("Đã thêm "+added+" ảnh.");
 }
 
-function renderEmpty() {
-  const panel = $("detailPanel");
-  panel.innerHTML =
-    '<div class="empty-state">' +
-      '<div class="empty-art">▤</div>' +
-      '<h3>Không gian tra cứu protocol</h3>' +
-      '<p>Chọn một phẫu thuật, thủ thuật trong danh sách bên trái để xem nội dung hoặc nhấn “Nhập protocol mới” để bắt đầu xây dựng thư viện chuyên môn.</p>' +
-    '</div>';
+function renderImagePreview(){
+  const preview=$("imagePreview");
+  const count=$("imageCount");
+  if(!preview || !count) return;
+
+  count.textContent="Đã chọn "+draftImages.length+"/4 ảnh.";
+
+  preview.innerHTML=draftImages.map((src,i)=>`
+    <div class="image-card">
+      <img src="${src}" alt="Ảnh ${i+1}">
+      <button type="button" onclick="removeImage(${i})" title="Xóa ảnh">×</button>
+      <span>Ảnh ${i+1}</span>
+    </div>
+  `).join("");
 }
 
-function showProtocol(id) {
-  const item = protocols.find(p => p.id === id);
+function removeImage(index){
+  draftImages.splice(index,1);
+  renderImagePreview();
+  notify("Đã xóa ảnh.");
+}
 
-  if(!item) {
-    selectedId = null;
-    renderList();
-    renderEmpty();
+// Dán ảnh bằng Ctrl + V trong khi đang nhập form.
+function setupPaste(){
+  const body=$("contentBody");
+  body.addEventListener("paste",async event=>{
+    const items=Array.from(event.clipboardData?.items || []);
+    const imageItems=items.filter(item=>item.type.startsWith("image/"));
+
+    if(!imageItems.length) return;
+
+    event.preventDefault();
+
+    const files=imageItems.map(item=>item.getAsFile()).filter(Boolean);
+    await handleImageFiles(files);
+  });
+}
+
+// Kéo thả ảnh từ máy tính.
+function setupDragDrop(){
+  const area=$("imageArea");
+
+  area.addEventListener("dragover",e=>{
+    e.preventDefault();
+    area.classList.add("dragover");
+  });
+
+  area.addEventListener("dragleave",()=>{
+    area.classList.remove("dragover");
+  });
+
+  area.addEventListener("drop",async e=>{
+    e.preventDefault();
+    area.classList.remove("dragover");
+    await handleImageFiles(e.dataTransfer.files);
+  });
+}
+
+/* ==============================
+   LƯU PROTOCOL
+================================ */
+
+function saveProtocol(){
+  const name=$("protocolName").value.trim();
+  const content=$("protocolContent").value.trim();
+  const note=$("protocolNote").value.trim();
+
+  const categories=Array.from(
+    document.querySelectorAll(".category-check:checked")
+  ).map(x=>x.value);
+
+  if(!name){
+    notify("Vui lòng nhập tên phẫu thuật, thủ thuật.");
+    $("protocolName").focus();
     return;
   }
 
-  selectedId = id;
-  renderList();
-
-  const panel = $("detailPanel");
-
-  panel.innerHTML =
-    '<div class="detail-header">' +
-      '<div class="detail-heading">' + escapeHTML(item.title) + '</div>' +
-      '<div class="detail-actions">' +
-        '<button class="btn" id="btnEdit" type="button">✎ Chỉnh sửa</button>' +
-        '<button class="btn" id="btnCopy" type="button">▣ Sao chép</button>' +
-        '<button class="btn btn-danger" id="btnDelete" type="button">⌫ Xóa</button>' +
-      '</div>' +
-    '</div>' +
-
-    '<div class="detail-body">' +
-      '<div class="content-card">' +
-        '<div class="content-card-heading">▤ &nbsp;NỘI DUNG PROTOCOL</div>' +
-        '<div class="content-card-body">' + escapeHTML(item.content) + '</div>' +
-      '</div>' +
-
-      (item.note
-        ? '<div class="note-card">' +
-            '<div class="note-heading">✎ &nbsp;GHI CHÚ</div>' +
-            '<div class="note-body">' + escapeHTML(item.note) + '</div>' +
-          '</div>'
-        : '') +
-
-      '<div style="font-size:11px;color:#8292a1;margin-top:20px">' +
-        (item.time ? "Cập nhật gần nhất: " + escapeHTML(item.time) : "") +
-      '</div>' +
-    '</div>';
-
-  $("btnEdit").addEventListener("click",() => openForm(id));
-  $("btnCopy").addEventListener("click",() => copyProtocol(id));
-  $("btnDelete").addEventListener("click",() => deleteProtocol(id));
-}
-
-function openForm(editId = null) {
-  const existing = editId
-    ? protocols.find(p => p.id === editId)
-    : null;
-
-  const current = existing || {title:"",content:"",note:""};
-
-  const panel = $("detailPanel");
-
-  panel.innerHTML =
-    '<div class="detail-header">' +
-      '<div class="detail-heading">' +
-        (existing ? "Chỉnh sửa protocol" : "Nhập protocol mới") +
-      '</div>' +
-      '<div class="detail-actions">' +
-        '<button class="btn" id="btnCancel" type="button">Hủy</button>' +
-        '<button class="btn btn-teal" id="btnSave" type="button">✓ Lưu protocol</button>' +
-      '</div>' +
-    '</div>' +
-
-    '<div class="detail-body">' +
-      '<div class="form-wrap">' +
-        '<p class="form-intro">Vui lòng nhập thông tin protocol. Các trường có dấu <span class="required">*</span> là bắt buộc.</p>' +
-
-        '<div class="field">' +
-          '<label for="fieldTitle">Tên phẫu thuật, thủ thuật <span class="required">*</span></label>' +
-          '<input id="fieldTitle" maxlength="250" type="text" ' +
-            'placeholder="Nhập tên phẫu thuật hoặc thủ thuật..." ' +
-            'value="' + escapeHTML(current.title) + '">' +
-        '</div>' +
-
-        '<div class="field">' +
-          '<label for="fieldContent">Nội dung protocol <span class="required">*</span></label>' +
-          '<textarea id="fieldContent" placeholder="Nhập nội dung chi tiết của protocol...">' +
-            escapeHTML(current.content) +
-          '</textarea>' +
-          '<span class="hint">Có thể trình bày theo từng bước, đánh số hoặc xuống dòng để dễ tra cứu.</span>' +
-        '</div>' +
-
-        '<div class="field">' +
-          '<label for="fieldNote">Ghi chú</label>' +
-          '<textarea class="note-input" id="fieldNote" placeholder="Nhập ghi chú bổ sung nếu có...">' +
-            escapeHTML(current.note) +
-          '</textarea>' +
-        '</div>' +
-
-        '<div class="form-bottom">' +
-          '<button class="btn" id="btnCancelBottom" type="button">Hủy bỏ</button>' +
-          '<button class="btn btn-teal" id="btnSaveBottom" type="button">✓ Lưu protocol</button>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-
-  $("fieldTitle").focus();
-
-  function cancel() {
-    if(existing) {
-      showProtocol(existing.id);
-    } else if(selectedId && protocols.some(p => p.id === selectedId)) {
-      showProtocol(selectedId);
-    } else {
-      renderEmpty();
-    }
+  if(!categories.length){
+    notify("Vui lòng chọn ít nhất một nhóm phân loại.");
+    return;
   }
 
-  function save() {
-    const title = $("fieldTitle").value.trim();
-    const content = $("fieldContent").value.trim();
-    const note = $("fieldNote").value.trim();
-
-    if(!title) {
-      notify("Vui lòng nhập tên phẫu thuật, thủ thuật.");
-      $("fieldTitle").focus();
-      return;
-    }
-
-    if(!content) {
-      notify("Vui lòng nhập nội dung protocol.");
-      $("fieldContent").focus();
-      return;
-    }
-
-    const now = new Date().toLocaleString("vi-VN");
-
-    if(existing) {
-      existing.title = title;
-      existing.content = content;
-      existing.note = note;
-      existing.time = now;
-      selectedId = existing.id;
-    } else {
-      const item = {
-        id:makeId(),
-        title,
-        content,
-        note,
-        time:now
-      };
-      protocols.unshift(item);
-      selectedId = item.id;
-    }
-
-    if(saveData()) {
-      renderList();
-      showProtocol(selectedId);
-      notify(existing ? "Đã cập nhật protocol." : "Đã lưu protocol mới.");
-    }
+  if(!content){
+    notify("Vui lòng nhập nội dung protocol.");
+    $("protocolContent").focus();
+    return;
   }
 
-  $("btnCancel").addEventListener("click",cancel);
-  $("btnCancelBottom").addEventListener("click",cancel);
-  $("btnSave").addEventListener("click",save);
-  $("btnSaveBottom").addEventListener("click",save);
-}
-
-function copyProtocol(id) {
-  const original = protocols.find(p => p.id === id);
-  if(!original) return;
-
-  const copy = {
-    id:makeId(),
-    title:original.title + " (Bản sao)",
-    content:original.content,
-    note:original.note,
-    time:new Date().toLocaleString("vi-VN")
-  };
-
-  protocols.unshift(copy);
-
-  if(saveData()) {
-    selectedId = copy.id;
-    renderList();
-    showProtocol(copy.id);
-    notify("Đã sao chép protocol.");
-  }
-}
-
-function deleteProtocol(id) {
-  const item = protocols.find(p => p.id === id);
-  if(!item) return;
-
-  if(!confirm('Bạn có chắc chắn muốn xóa "' + item.title + '" không?')) return;
-
-  protocols = protocols.filter(p => p.id !== id);
-  selectedId = protocols.length ? protocols[0].id : null;
-
-  if(saveData()) {
-    renderList();
-
-    if(selectedId) showProtocol(selectedId);
-    else renderEmpty();
-
-    notify("Đã xóa protocol.");
-  }
-}
-
-function exportData() {
-  const blob = new Blob(
-    [JSON.stringify(protocols,null,2)],
-    {type:"application/json;charset=utf-8"}
+  const duplicateName=dataList.some(p=>
+    p.id!==editingId && p.name.toLowerCase()===name.toLowerCase()
   );
 
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
+  if(duplicateName && !confirm("Đã có protocol cùng tên. Bạn vẫn muốn lưu?")){
+    return;
+  }
 
-  a.href = url;
-  a.download = "Du-lieu-Protocol-Y-khoa-" +
-    new Date().toISOString().slice(0,10) + ".json";
+  const now=new Date().toISOString();
+  let p;
 
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  if(editingId){
+    p=dataList.find(x=>x.id===editingId);
+    if(!p) return;
 
-  setTimeout(() => URL.revokeObjectURL(url),1000);
-  notify("Đã xuất dữ liệu sao lưu.");
+    p.name=name;
+    p.content=content;
+    p.note=note;
+    p.categories=categories;
+    p.images=[...draftImages];
+    p.updatedAt=now;
+  }else{
+    p={
+      id:uid(),
+      name,content,note,categories,
+      images:[...draftImages],
+      createdAt:now,
+      updatedAt:now
+    };
+    dataList.push(p);
+  }
+
+  if(!saveData()) return;
+
+  activeId=p.id;
+  activeFolder="Tất cả";
+  $("searchInput").value="";
+  editingId=null;
+  draftImages=[];
+
+  renderAll();
+  showProtocol(p);
+  notify("Đã lưu protocol thành công.");
 }
 
-function importData(file) {
-  if(!file) return;
+/* ==============================
+   SAO CHÉP VÀ XÓA
+================================ */
 
-  const reader = new FileReader();
+function duplicateProtocol(id){
+  const p=dataList.find(x=>x.id===id);
+  if(!p) return;
 
-  reader.onload = () => {
-    try {
-      const data = JSON.parse(String(reader.result || ""));
-
-      if(!Array.isArray(data)) throw new Error("Invalid format");
-
-      const cleaned = data.map((item,index) => ({
-        id:String(item.id || ("import_" + index + "_" + Date.now())),
-        title:String(item.title || item.name || ""),
-        content:String(item.content || ""),
-        note:String(item.note || ""),
-        time:String(item.time || new Date().toLocaleString("vi-VN"))
-      })).filter(item => item.title && item.content);
-
-      if(!confirm(
-        "Tìm thấy " + cleaned.length +
-        " protocol hợp lệ. Dữ liệu hiện tại sẽ được thay thế. Bạn có muốn tiếp tục?"
-      )) return;
-
-      protocols = cleaned;
-      selectedId = protocols.length ? protocols[0].id : null;
-
-      if(saveData()) {
-        renderList();
-        if(selectedId) showProtocol(selectedId);
-        else renderEmpty();
-        notify("Đã nhập dữ liệu thành công.");
-      }
-
-    } catch(error) {
-      notify("File không hợp lệ. Vui lòng chọn file JSON đã xuất từ công cụ.");
-
-    } finally {
-      $("fileInput").value = "";
-    }
+  const copy={
+    ...p,
+    id:uid(),
+    name:p.name+" (Bản sao)",
+    categories:[...p.categories],
+    images:[...p.images],
+    createdAt:new Date().toISOString(),
+    updatedAt:new Date().toISOString()
   };
 
-  reader.onerror = () => notify("Không thể đọc file.");
-  reader.readAsText(file,"UTF-8");
+  dataList.push(copy);
+
+  if(!saveData()){
+    dataList.pop();
+    return;
+  }
+
+  activeId=copy.id;
+  activeFolder="Tất cả";
+  renderAll();
+  showProtocol(copy);
+  notify("Đã sao chép protocol và hình ảnh.");
 }
 
-// EVENTS
-$("btnNew").addEventListener("click",() => openForm());
-$("txtSearch").addEventListener("input",renderList);
-$("btnExport").addEventListener("click",exportData);
-$("btnImport").addEventListener("click",() => $("fileInput").click());
-$("fileInput").addEventListener("change",e => importData(e.target.files[0]));
+function deleteProtocol(id){
+  const p=dataList.find(x=>x.id===id);
+  if(!p) return;
 
-// INITIALIZE
+  askConfirm(
+    "Xóa protocol",
+    "Bạn có chắc chắn muốn xóa protocol “"+p.name+"”? Thao tác này không thể hoàn tác.",
+    ()=>{
+      const old=dataList;
+      dataList=dataList.filter(x=>x.id!==id);
+
+      if(!saveData()){
+        dataList=old;
+        return;
+      }
+
+      activeId=null;
+      renderAll();
+      showWelcome();
+      notify("Đã xóa protocol.");
+    }
+  );
+}
+
+function askConfirm(title,text,action){
+  $("modalTitle").textContent=title;
+  $("modalText").textContent=text;
+  modalAction=action;
+  $("confirmModal").classList.add("show");
+  $("confirmButton").onclick=()=>{
+    closeModal();
+    if(modalAction) modalAction();
+    modalAction=null;
+  };
+}
+
+function closeModal(){
+  $("confirmModal").classList.remove("show");
+  modalAction=null;
+}
+
+/* ==============================
+   XUẤT DỮ LIỆU
+================================ */
+
+function exportData(){
+  try{
+    const payload={
+      app:"CONG_CU_Y_KHOA",
+      version:4,
+      exportedAt:new Date().toISOString(),
+      protocols:dataList
+    };
+
+    const blob=new Blob(
+      [JSON.stringify(payload,null,2)],
+      {type:"application/json"}
+    );
+
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download="Cong_cu_y_khoa_"+new Date().toISOString().slice(0,10)+".json";
+    a.click();
+    URL.revokeObjectURL(url);
+    notify("Đã xuất dữ liệu protocol và hình ảnh.");
+  }catch(e){
+    notify("Không thể xuất dữ liệu.");
+  }
+}
+
+/* ==============================
+   NHẬP DỮ LIỆU
+================================ */
+
+function importData(event){
+  const file=event.target.files[0];
+  if(!file) return;
+
+  const reader=new FileReader();
+
+  reader.onload=()=>{
+    try{
+      const parsed=JSON.parse(reader.result);
+
+      let incoming=Array.isArray(parsed) ? parsed :
+        Array.isArray(parsed.protocols) ? parsed.protocols : null;
+
+      if(!incoming) throw new Error("Sai cấu trúc dữ liệu.");
+
+      const normalized=incoming.map(normalizeProtocol);
+
+      askConfirm(
+        "Nhập dữ liệu",
+        "Bạn muốn nhập "+normalized.length+
+        " protocol? Các protocol cùng ID sẽ được cập nhật, các protocol khác được giữ lại.",
+        ()=>{
+          const old=[...dataList];
+
+          normalized.forEach(p=>{
+            const index=dataList.findIndex(x=>x.id===p.id);
+            if(index>=0) dataList[index]=p;
+            else dataList.push(p);
+          });
+
+          if(!saveData()){
+            dataList=old;
+            return;
+          }
+
+          activeId=null;
+          activeFolder="Tất cả";
+          renderAll();
+          showWelcome();
+          notify("Đã nhập dữ liệu thành công.");
+        }
+      );
+
+    }catch(e){
+      notify("File không hợp lệ hoặc không đọc được.");
+    }
+
+    event.target.value="";
+  };
+
+  reader.readAsText(file);
+}
+
+/* ==============================
+   KHỞI ĐỘNG
+================================ */
+
 loadData();
-renderList();
+showWelcome();
 
-if(protocols.length) {
-  showProtocol(protocols[0].id);
-} else {
-  renderEmpty();
-}
-
-})();
 </script>
 </body>
 </html>
