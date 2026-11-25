@@ -1,1041 +1,707 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CÔNG CỤ Y KHOA</title>
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --primary:#087fb9;
-  --primary-dark:#05628f;
-  --light:#eaf6fc;
-  --bg:#f1f5f9;
-  --border:#dce5ee;
-  --text:#1e293b;
-  --muted:#64748b;
-}
+:root{--blue:#087fbd;--ink:#19334b;--muted:#708398;--line:#dce6ef;--bg:#f2f6fa;--soft:#eaf6fc;--red:#c94343}
 *{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
-}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",Arial,sans-serif}
 button,input,textarea{font:inherit}
 button{cursor:pointer}
-header{
-  height:72px;background:white;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 24px;gap:16px;position:relative;z-index:2;
-}
-.brand{font-size:23px;font-weight:800;color:var(--primary);white-space:nowrap}
-.header-actions{display:flex;gap:9px;align-items:center}
-.btn{
-  border:0;border-radius:8px;padding:10px 15px;
-  font-weight:700;font-size:13px;transition:.15s;
-}
-.btn-primary{background:var(--primary);color:white}
-.btn-primary:hover{background:var(--primary-dark)}
-.btn-outline{background:white;border:1px solid #cbd5e1;color:#334155}
-.btn-outline:hover{background:#f1f5f9}
-.btn-danger{background:#fee2e2;color:#b91c1c}
-.btn-success{background:#059669;color:white}
-.btn-small{padding:8px 11px;font-size:12px}
-.tabbar{
-  background:white;border-bottom:1px solid var(--border);
-  display:flex;padding:0 22px;gap:8px;
-}
-.tab{
-  border:0;background:white;padding:17px 18px;
-  color:var(--muted);font-weight:700;
-  border-bottom:3px solid transparent;
-}
-.tab.active{color:var(--primary);border-color:var(--primary)}
-main{padding:16px;height:calc(100vh - 124px);min-height:500px}
-.workspace{display:flex;gap:15px;height:100%}
-.sidebar{
-  width:310px;min-width:270px;background:white;
-  border:1px solid var(--border);border-radius:12px;
-  display:flex;flex-direction:column;overflow:hidden;
-}
-.sidebar-top{padding:14px;border-bottom:1px solid var(--border)}
-.btn-new{width:100%;padding:13px;font-size:14px}
-.search{
-  width:100%;margin-top:10px;padding:12px;
-  border:1px solid var(--border);border-radius:8px;
-  outline:none;font-size:14px;
-}
-.search:focus,.field:focus{border-color:var(--primary)}
-.section-label{
-  padding:13px 14px 6px;color:var(--muted);
-  font-size:11px;font-weight:800;letter-spacing:.6px;
-  text-transform:uppercase;
-}
-.folders{padding:0 9px 10px;border-bottom:1px solid var(--border)}
-.folder{
-  display:flex;align-items:center;justify-content:space-between;
-  width:100%;padding:10px 11px;margin:2px 0;
-  border:0;border-radius:7px;background:white;
-  color:#334155;text-align:left;font-size:13px;font-weight:600;
-}
-.folder:hover{background:#f1f5f9}
-.folder.active{background:var(--light);color:var(--primary-dark)}
-.folder-name{display:flex;align-items:center;gap:9px}
-.folder-count{
-  background:#e2e8f0;padding:3px 8px;border-radius:20px;
-  font-size:11px;color:#475569;
-}
-.folder.active .folder-count{background:#c8e9fa;color:#075985}
-.protocol-list{overflow:auto;flex:1}
-.protocol-item{
-  padding:13px 14px;border-bottom:1px solid #f1f5f9;
-  cursor:pointer;border-left:3px solid transparent;
-}
-.protocol-item:hover{background:#f8fafc}
-.protocol-item.active{
-  background:#eaf6fc;border-left-color:var(--primary);
-}
-.protocol-name{font-size:13px;font-weight:700;line-height:1.5}
-.protocol-meta{font-size:11px;color:var(--muted);margin-top:6px}
-.sidebar-footer{
-  padding:11px 14px;border-top:1px solid var(--border);
-  color:var(--muted);font-size:12px;
-}
-.content{
-  flex:1;min-width:0;background:white;
-  border:1px solid var(--border);border-radius:12px;
-  display:flex;flex-direction:column;overflow:hidden;
-}
-.content-header{
-  min-height:59px;padding:12px 18px;
-  background:#f8fafc;border-bottom:1px solid var(--border);
-  display:flex;justify-content:space-between;
-  align-items:center;gap:10px;flex-wrap:wrap;
-}
-.content-title{font-size:16px;font-weight:800}
-.content-actions{display:flex;gap:7px;flex-wrap:wrap}
-.content-body{padding:22px;overflow-y:auto;flex:1}
-.welcome{
-  height:100%;display:flex;align-items:center;
-  justify-content:center;text-align:center;color:var(--muted);
-}
-.welcome-icon{font-size:50px;margin-bottom:14px}
-.welcome h2{color:#334155;font-size:20px;margin:0 0 10px}
-.welcome p{font-size:14px;line-height:1.6}
-.field-group{margin-bottom:20px}
-.field-group label{
-  display:block;font-size:14px;font-weight:700;
-  margin-bottom:9px;
-}
-.field{
-  width:100%;padding:12px;border:1px solid #cbd5e1;
-  border-radius:8px;outline:none;font-size:14px;
-}
-textarea.field{resize:vertical;line-height:1.65}
-.protocol-text{min-height:260px}
-.note-text{min-height:90px}
-.category-grid{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:10px;
-}
-.category-choice{
-  border:1px solid var(--border);border-radius:8px;
-  padding:13px;display:flex;align-items:center;gap:10px;
-  font-size:13px;font-weight:600;cursor:pointer;
-}
-.category-choice:hover{background:#f0f9ff}
-.category-choice:has(input:checked){
-  background:#eaf6fc;border-color:var(--primary);color:var(--primary-dark);
-}
-.category-choice input{width:17px;height:17px;accent-color:var(--primary)}
-.hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
-.image-area{
-  border:2px dashed #b9d3e3;border-radius:10px;
-  padding:20px;background:#f8fcff;text-align:center;
-}
-.image-area.dragover{background:#e0f2fe;border-color:var(--primary)}
-.image-area p{font-size:13px;color:var(--muted);line-height:1.6}
-.image-buttons{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
-.image-grid{
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:12px;margin-top:15px;
-}
-.image-card{
-  position:relative;border:1px solid var(--border);
-  border-radius:8px;overflow:hidden;background:white;
-}
-.image-card img{width:100%;height:120px;object-fit:contain;display:block;background:#f1f5f9}
-.image-card button{
-  position:absolute;top:5px;right:5px;
-  border:0;border-radius:50%;width:25px;height:25px;
-  background:#dc2626;color:white;font-weight:bold;
-}
-.image-card span{
-  display:block;padding:5px;text-align:center;
-  font-size:11px;color:var(--muted);
-}
-.image-view-grid{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:15px;margin-top:12px;
-}
-.image-view-grid img{
-  width:100%;max-height:400px;object-fit:contain;
-  background:#f8fafc;border:1px solid var(--border);border-radius:8px;
-}
-.tag{
-  display:inline-block;padding:5px 10px;border-radius:20px;
-  background:#e0f2fe;color:#0369a1;font-size:11px;
-  font-weight:700;margin:0 5px 7px 0;
-}
-.view-section{margin-bottom:25px}
-.view-section h3{
-  font-size:15px;padding-bottom:10px;
-  border-bottom:1px solid var(--border);margin-bottom:12px;
-}
-.view-text{white-space:pre-wrap;line-height:1.8;font-size:14px;color:#334155}
-.note-view{
-  background:#fffbeb;border-left:4px solid #f59e0b;
-  padding:14px;border-radius:7px;white-space:pre-wrap;
-  font-size:13px;line-height:1.7;
-}
-.empty-message{text-align:center;padding:30px;color:var(--muted);font-size:13px}
-.msg{
-  position:fixed;bottom:20px;right:20px;z-index:100;
-  padding:13px 19px;border-radius:9px;background:#0f172a;
-  color:white;font-size:13px;box-shadow:0 5px 20px #0002;
-  display:none;max-width:90%;
-}
-.msg.show{display:block}
-.modal-bg{
-  position:fixed;inset:0;background:#0f172a88;
-  display:none;align-items:center;justify-content:center;
-  z-index:90;padding:15px;
-}
-.modal-bg.show{display:flex}
-.modal{
-  background:white;border-radius:12px;padding:23px;
-  max-width:420px;width:100%;box-shadow:0 15px 40px #0003;
-}
-.modal h3{margin:0 0 12px}
-.modal p{font-size:14px;line-height:1.6;color:var(--muted)}
-.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
-@media(max-width:750px){
-  header{height:auto;padding:13px;align-items:flex-start;flex-direction:column}
-  .brand{font-size:19px}
-  .tabbar{padding:0 8px;overflow-x:auto}
-  .tab{white-space:nowrap;padding:13px 10px}
-  main{height:auto;min-height:calc(100vh - 130px);padding:9px}
-  .workspace{flex-direction:column;height:auto}
-  .sidebar{width:100%;min-width:0;max-height:400px}
-  .content{min-height:550px}
-  .category-grid{grid-template-columns:1fr}
-  .image-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+header{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:12px}
+.brand{font-size:23px;font-weight:800;color:var(--blue)}
+.actions,.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+button.btn{border:1px solid var(--line);background:white;color:var(--ink);padding:10px 14px;border-radius:10px;font-weight:600}
+button.btn:hover{border-color:#91c8e2;background:#f7fbfd}
+button.primary{background:var(--blue);color:white;border-color:var(--blue)}
+button.primary:hover{background:#066b9e}
+button.danger{color:var(--red)}
+nav{height:56px;background:white;border-bottom:1px solid var(--line);display:flex;padding:0 24px;gap:8px}
+.tab{border:0;background:none;padding:0 16px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent}
+.tab.active{color:var(--blue);border-color:var(--blue)}
+main{padding:18px 22px;max-width:1800px;margin:auto}
+.workspace{display:grid;grid-template-columns:310px minmax(0,1fr);gap:16px;min-height:calc(100vh - 170px)}
+.sidebar,.panel,.reserve{background:white;border:1px solid var(--line);border-radius:15px;overflow:hidden;min-width:0;box-shadow:0 6px 22px #18334b0c}
+.sidebar{display:flex;flex-direction:column;min-height:560px}
+.sidehead{padding:14px;border-bottom:1px solid var(--line);display:grid;gap:9px}
+.search,.field input,.field textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px;outline:none;color:var(--ink)}
+input:focus,textarea:focus{border-color:#76bddd;box-shadow:0 0 0 3px #087fbd18}
+.flabel{font-size:12px;font-weight:800;letter-spacing:.6px;color:var(--muted);padding:15px 15px 6px}
+.folders{padding:0 8px 9px;display:grid;gap:3px}
+.folder{border:0;background:none;text-align:left;padding:10px;border-radius:9px;display:flex;justify-content:space-between;font-weight:600;color:var(--ink)}
+.folder.active{background:var(--soft);color:var(--blue)}
+.count{font-size:12px;background:#e8eef4;border-radius:20px;padding:3px 8px}
+.folder.active .count{background:#cceafa}
+.list{border-top:1px solid var(--line);padding:7px;overflow:auto;flex:1}
+.item{display:block;width:100%;text-align:left;border:0;background:white;padding:10px;border-radius:8px;color:var(--ink)}
+.item:hover,.item.active{background:var(--soft);color:var(--blue)}
+.item b{display:block;font-size:13px}
+.item small{display:block;color:#8393a3;margin-top:4px}
+.empty{padding:20px 8px;text-align:center;color:#8796a5;font-size:13px}
+.foot{border-top:1px solid var(--line);padding:10px 14px;font-size:12px;color:var(--muted)}
+.panel{display:flex;flex-direction:column;min-height:560px}
+.panelhead{padding:15px 19px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.panelhead h2{font-size:17px;margin:0}
+.body{padding:20px;flex:1;min-width:0}
+.welcome{height:100%;min-height:440px;display:grid;place-items:center;text-align:center;color:var(--muted)}
+.welcome .emoji{font-size:44px}
+.welcome h2{color:var(--ink);font-size:20px;margin:10px 0}
+.form{display:grid;gap:16px}
+.field label{display:block;font-weight:700;font-size:14px;margin-bottom:7px}
+.req{color:var(--red)}
+.field textarea{resize:vertical;min-height:220px;line-height:1.65}
+.field textarea.notes{min-height:85px}
+.dropdown{position:relative}
+.dropbtn{width:100%;text-align:left;display:flex;justify-content:space-between;border:1px solid var(--line);border-radius:10px;background:white;padding:12px;color:var(--ink)}
+.dropmenu{display:none;position:absolute;z-index:10;top:calc(100% + 5px);left:0;right:0;background:white;border:1px solid var(--line);border-radius:11px;padding:7px;box-shadow:0 12px 28px #14324b24}
+.dropdown.open .dropmenu{display:block}
+.option{display:flex;gap:9px;align-items:center;padding:9px;border-radius:8px;font-size:13px}
+.option:hover{background:#f2f8fc}
+.option input{accent-color:var(--blue)}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.tag{background:var(--soft);color:#086b9f;border-radius:20px;padding:4px 9px;font-size:11px;font-weight:700}
+.upload{border:2px dashed #b8d5e5;border-radius:12px;background:#f8fcfe;padding:20px;text-align:center}
+.upload.drag{background:var(--soft);border-color:var(--blue)}
+.upload p{font-size:13px;color:var(--muted);margin:5px}
+.thumbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:11px}
+.thumb{position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb button{position:absolute;right:5px;top:5px;border:0;border-radius:50%;background:#172b40cc;color:white;width:25px;height:25px}
+.formfoot{display:flex;justify-content:flex-end;gap:8px}
+.detailtitle{font-size:22px;margin:0 0 12px}
+.meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.content{white-space:pre-wrap;line-height:1.75;font-size:14px;overflow-wrap:anywhere}
+.section{margin-top:20px}
+.section h3{font-size:13px;margin:0 0 8px}
+.detailimgs{display:grid;grid-template-columns:repeat(4,minmax(0,180px));gap:10px}
+.detailimgs img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:9px;border:1px solid var(--line);cursor:zoom-in}
+.reserve{min-height:560px;display:flex;flex-direction:column}
+.reservecontent{flex:1;display:grid;place-items:center;text-align:center;padding:25px;color:var(--muted)}
+.reservecontent .emoji{font-size:48px}
+.reservecontent h2{color:var(--ink)}
+.toast{position:fixed;bottom:20px;right:20px;background:#19334b;color:white;padding:12px 16px;border-radius:10px;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:50;font-size:13px}
+.toast.show{opacity:1;transform:none}
+.modalbg,.lightbox{display:none;position:fixed;inset:0;background:#10223580;z-index:80;align-items:center;justify-content:center;padding:20px}
+.modalbg.show,.lightbox.show{display:flex}
+.modal{background:white;padding:22px;border-radius:14px;max-width:420px;width:100%}
+.modal p{color:var(--muted);font-size:13px}
+.modalfoot{display:flex;justify-content:flex-end;gap:8px}
+.lightbox{background:#000d}
+.lightbox img{max-width:95vw;max-height:90vh}
+.lightbox button{position:absolute;right:20px;top:15px;border:0;border-radius:50%;width:38px;height:38px;font-size:22px}
+[hidden]{display:none!important}
+@media(max-width:850px){
+header{padding:12px;height:auto;flex-wrap:wrap}
+.brand{font-size:19px}
+nav{padding:0 7px}
+.tab{padding:0 9px;font-size:12px}
+main{padding:12px}
+.workspace{grid-template-columns:1fr}
+.sidebar{min-height:0}
+.list{max-height:220px}
+.panel{min-height:480px}
+.thumbs{grid-template-columns:repeat(2,minmax(0,1fr))}
+.detailimgs{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
 </head>
-
 <body>
-
 <header>
-  <div class="brand">✦ CÔNG CỤ Y KHOA</div>
-  <div class="header-actions">
-    <button class="btn btn-outline" onclick="exportData()">Xuất dữ liệu</button>
-    <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">Nhập dữ liệu</button>
-    <input type="file" id="importFile" accept=".json,application/json" hidden onchange="importData(event)">
-  </div>
+<div class="brand">✦ CÔNG CỤ Y KHOA</div>
+<div class="actions">
+<button class="btn" id="export">Xuất dữ liệu</button>
+<button class="btn" id="import">Nhập dữ liệu</button>
+<input id="importFile" type="file" accept=".json,application/json" hidden>
+</div>
 </header>
-
-<nav class="tabbar">
-  <button class="tab active" onclick="switchTab(this,'protocolPanel')">
-    Protocol phẫu thuật, thủ thuật
-  </button>
-  <button class="tab" onclick="switchTab(this,'backupPanel')">
-    Công cụ hỗ trợ 2 (Dự phòng)
-  </button>
+<nav>
+<button class="tab active" data-tab="protocol">Protocol phẫu thuật, thủ thuật</button>
+<button class="tab" data-tab="reserve">Công cụ hỗ trợ 2 (Dự phòng)</button>
 </nav>
-
 <main>
-<section class="panel active" id="protocolPanel">
-
-  <aside class="sidebar">
-    <div class="sidebar-top">
-      <button class="btn btn-primary btn-new" onclick="newProtocol()">
-        + Nhập protocol mới
-      </button>
-      <input class="search" id="searchInput"
-        placeholder="Tìm tên phẫu thuật, thủ thuật..."
-        oninput="renderList()">
-    </div>
-
-    <div class="section-label">Thư mục phân loại</div>
-    <div class="folders" id="folderList"></div>
-
-    <ul class="protocol-list" id="protocolList"></ul>
-    <div class="sidebar-footer" id="totalCount">0 protocol</div>
-  </aside>
-
-  <section class="content">
-    <div class="content-header">
-      <div class="content-title" id="contentTitle">Nội dung protocol</div>
-      <div class="content-actions" id="contentActions"></div>
-    </div>
-    <div class="content-body" id="contentBody">
-      <div class="welcome">
-        <div>
-          <div class="welcome-icon">📋</div>
-          <h2>Chưa có protocol nào</h2>
-          <p>Chọn một protocol hoặc nhấn “Nhập protocol mới” để bắt đầu.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+<section class="workspace" id="protocolTab">
+<aside class="sidebar">
+<div class="sidehead">
+<button class="btn primary" id="new">＋ Nhập protocol mới</button>
+<input class="search" id="search" placeholder="Tìm tên phẫu thuật, thủ thuật...">
+</div>
+<div class="flabel">THƯ MỤC PHÂN LOẠI</div>
+<div class="folders" id="folders"></div>
+<div class="list" id="list"></div>
+<div class="foot" id="total">0 protocol</div>
+</aside>
+<section class="panel">
+<div class="panelhead">
+<h2 id="heading">Kho protocol</h2>
+<div class="btnrow" id="detailActions" hidden>
+<button class="btn" id="edit">Chỉnh sửa</button>
+<button class="btn" id="copy">Sao chép</button>
+<button class="btn danger" id="delete">Xóa protocol</button>
+</div>
+</div>
+<div class="body" id="body">
+<div class="welcome"><div><div class="emoji">📋</div><h2>Chưa có protocol được chọn</h2><p>Chọn protocol ở danh sách bên trái hoặc nhập protocol mới.</p></div></div>
+</div>
 </section>
-
-<section class="panel" id="backupPanel">
-  <div class="content" style="width:100%">
-    <div class="content-header">
-      <div class="content-title">Công cụ hỗ trợ 2 (Dự phòng)</div>
-    </div>
-    <div class="content-body">
-      <div class="welcome">
-        <div>
-          <div class="welcome-icon">🛠️</div>
-          <h2>Khu vực dự phòng</h2>
-          <p>Có thể bổ sung các công cụ y khoa khác tại đây trong tương lai.</p>
-        </div>
-      </div>
-    </div>
-  </div>
+</section>
+<section class="reserve" id="reserveTab" hidden>
+<div class="panelhead"><h2>Công cụ hỗ trợ 2 (Dự phòng)</h2></div>
+<div class="reservecontent"><div><div class="emoji">🛠️</div><h2>Khu vực dự phòng</h2><p>Có thể bổ sung các công cụ y khoa khác tại đây trong tương lai.</p></div></div>
 </section>
 </main>
-
-<div class="msg" id="message"></div>
-
-<div class="modal-bg" id="confirmModal">
-  <div class="modal">
-    <h3 id="modalTitle">Xác nhận</h3>
-    <p id="modalText"></p>
-    <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeModal()">Hủy</button>
-      <button class="btn btn-danger" id="confirmButton">Xác nhận</button>
-    </div>
-  </div>
+<div class="toast" id="toast"></div>
+<div class="modalbg" id="modal">
+<div class="modal">
+<h3 id="modalTitle">Xác nhận</h3>
+<p id="modalText"></p>
+<div class="modalfoot">
+<button class="btn" id="cancelModal">Hủy</button>
+<button class="btn danger" id="confirmModal">Xác nhận</button>
+</div>
+</div>
+</div>
+<div class="lightbox" id="lightbox">
+<button id="closeLightbox">×</button>
+<img id="lightboxImg" alt="Ảnh protocol">
 </div>
 
 <script>
+(()=>{
 "use strict";
 
-/* ==============================
-   CẤU HÌNH VÀ DỮ LIỆU
-================================ */
+const KEY="cong_cu_y_khoa_protocols_vi_v3";
+const CATS=["Chi trên","Chi dưới","Ngoại Tổng hợp","Phẫu thuật khác","Thủ thuật khác"];
+const FOLDERS=["Tất cả",...CATS];
+const $=id=>document.getElementById(id);
 
-const STORE_KEY = "cong_cu_y_khoa_protocols_vi_v3";
+let data=[],activeId=null,folder="Tất cả",editingId=null,images=[],modalAction=null,timer;
 
-const CATEGORIES = [
-  "Chi trên",
-  "Chi dưới",
-  "Ngoại Tổng hợp",
-  "Phẫu thuật khác",
-  "Thủ thuật khác"
-];
+const uid=()=>"p_"+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 
-let dataList = [];
-let activeId = null;
-let activeFolder = "Tất cả";
-let editingId = null;
-let draftImages = [];
-let modalAction = null;
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
 
-const $ = id => document.getElementById(id);
-
-function uid(){
-  return Date.now().toString(36) +
-    Math.random().toString(36).slice(2,9);
+function toast(s){
+$("toast").textContent=s;
+$("toast").classList.add("show");
+clearTimeout(timer);
+timer=setTimeout(()=>$("toast").classList.remove("show"),2600);
 }
 
-function esc(value){
-  return String(value ?? "").replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",
-    '"':"&quot;","'":"&#39;"
-  }[c]));
+function normalize(x){
+if(!x||typeof x!=="object")return null;
+let c=x.categories??x.category??x.groups??[];
+if(typeof c==="string")c=[c];
+if(!Array.isArray(c))c=[];
+let pics=x.images??x.photos??[];
+if(!Array.isArray(pics))pics=[];
+return{
+id:String(x.id??uid()),
+name:String(x.name??x.title??x.ten??""),
+categories:c.filter(v=>CATS.includes(v)),
+content:String(x.content??x.protocol??x.noiDung??""),
+notes:String(x.notes??x.note??x.ghiChu??""),
+images:pics.slice(0,4).map(v=>typeof v==="string"?v:(v?.dataUrl??v?.src??"")).filter(Boolean),
+createdAt:x.createdAt??Date.now(),
+updatedAt:x.updatedAt??Date.now()
+};
 }
 
-function normalizeProtocol(p){
-  const images = Array.isArray(p.images) ? p.images :
-    Array.isArray(p.attachments) ? p.attachments : [];
-
-  let categories = p.categories || p.category || [];
-  if(typeof categories === "string") categories = [categories];
-  if(!Array.isArray(categories)) categories = [];
-
-  return {
-    id: String(p.id || uid()),
-    name: String(p.name || p.title || ""),
-    content: String(p.content || p.protocol || ""),
-    note: String(p.note || p.notes || ""),
-    categories: categories.filter(c => CATEGORIES.includes(c)),
-    images: images.filter(x => typeof x === "string").slice(0,4),
-    createdAt: p.createdAt || new Date().toISOString(),
-    updatedAt: p.updatedAt || p.createdAt || new Date().toISOString()
-  };
+function save(){
+try{
+localStorage.setItem(KEY,JSON.stringify(data));
+return true;
+}catch(e){
+toast("Không đủ dung lượng lưu ảnh. Hãy giảm kích thước ảnh.");
+return false;
+}
 }
 
-function loadData(){
-  try{
-    const raw = localStorage.getItem(STORE_KEY);
-    if(raw){
-      const parsed = JSON.parse(raw);
-      dataList = Array.isArray(parsed) ? parsed.map(normalizeProtocol) : [];
-    }
-  }catch(e){
-    dataList = [];
-    notify("Không đọc được dữ liệu lưu trên trình duyệt.");
-  }
-  renderAll();
+function load(){
+try{
+let a=JSON.parse(localStorage.getItem(KEY)||"[]");
+if(!Array.isArray(a))a=a.dataList||[];
+data=a.map(normalize).filter(Boolean);
+}catch(e){data=[];}
 }
 
-function saveData(){
-  try{
-    localStorage.setItem(STORE_KEY,JSON.stringify(dataList));
-    return true;
-  }catch(e){
-    notify("Không đủ bộ nhớ để lưu. Hãy giảm dung lượng ảnh hoặc xuất dữ liệu dự phòng.");
-    return false;
-  }
+function showTab(t){
+$("protocolTab").hidden=t!=="protocol";
+$("reserveTab").hidden=t!=="reserve";
+document.querySelectorAll(".tab").forEach(b=>
+b.classList.toggle("active",b.dataset.tab===t)
+);
 }
 
-function notify(text){
-  const box=$("message");
-  box.textContent=text;
-  box.classList.add("show");
-  clearTimeout(notify.timer);
-  notify.timer=setTimeout(()=>box.classList.remove("show"),3000);
-}
-
-/* ==============================
-   GIAO DIỆN TAB VÀ THƯ MỤC
-================================ */
-
-function switchTab(button,panelId){
-  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-  document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
-  button.classList.add("active");
-  $(panelId).classList.add("active");
-}
-
-function countInFolder(folder){
-  if(folder==="Tất cả") return dataList.length;
-  if(folder==="Chưa phân loại")
-    return dataList.filter(p=>!p.categories.length).length;
-  return dataList.filter(p=>p.categories.includes(folder)).length;
-}
+document.querySelectorAll(".tab").forEach(b=>{
+b.onclick=()=>showTab(b.dataset.tab);
+});
 
 function renderFolders(){
-  const folders=["Tất cả",...CATEGORIES,"Chưa phân loại"];
-  $("folderList").innerHTML=folders.map(folder=>{
-    const icon=folder==="Tất cả"?"📚":
-      folder==="Chưa phân loại"?"📁":"📂";
-    return `
-      <button class="folder ${activeFolder===folder?"active":""}"
-        onclick="selectFolder('${esc(folder)}')">
-        <span class="folder-name">
-          <span>${icon}</span>${esc(folder)}
-        </span>
-        <span class="folder-count">${countInFolder(folder)}</span>
-      </button>`;
-  }).join("");
+$("folders").innerHTML=FOLDERS.map(f=>`
+<button class="folder ${folder===f?"active":""}" data-folder="${esc(f)}">
+<span>${f==="Tất cả"?"▦　":"📁　"}${esc(f)}</span>
+<span class="count">${f==="Tất cả"?data.length:data.filter(p=>p.categories.includes(f)).length}</span>
+</button>
+`).join("");
+
+$("folders").querySelectorAll("[data-folder]").forEach(b=>{
+b.onclick=()=>{
+folder=b.dataset.folder;
+activeId=null;
+$("heading").textContent=folder==="Tất cả"?"Kho protocol":folder;
+render();
+showWelcome();
+};
+});
 }
 
-function selectFolder(folder){
-  activeFolder=folder;
-  activeId=null;
-  renderAll();
-  showWelcome();
+function filtered(){
+let q=$("search").value.trim().toLocaleLowerCase("vi");
+return data.filter(p=>
+(folder==="Tất cả"||p.categories.includes(folder))&&
+(!q||p.name.toLocaleLowerCase("vi").includes(q)||p.content.toLocaleLowerCase("vi").includes(q))
+).sort((a,b)=>a.name.localeCompare(b.name,"vi"));
 }
 
 function renderList(){
-  const keyword=$("searchInput").value.trim().toLowerCase();
+let a=filtered();
 
-  let list=dataList.filter(p=>{
-    const inFolder=activeFolder==="Tất cả" ||
-      (activeFolder==="Chưa phân loại" && !p.categories.length) ||
-      p.categories.includes(activeFolder);
+$("list").innerHTML=a.length?a.map(p=>`
+<button class="item ${p.id===activeId?"active":""}" data-id="${esc(p.id)}">
+<b>${esc(p.name)}</b>
+<small>${p.categories.map(esc).join(" · ")||"Chưa phân loại"}</small>
+</button>
+`).join(""):'<div class="empty">Không tìm thấy protocol phù hợp.</div>';
 
-    return inFolder && (
-      p.name.toLowerCase().includes(keyword) ||
-      p.content.toLowerCase().includes(keyword) ||
-      p.note.toLowerCase().includes(keyword)
-    );
-  });
+$("list").querySelectorAll("[data-id]").forEach(b=>{
+b.onclick=()=>select(b.dataset.id);
+});
 
-  list.sort((a,b)=>a.name.localeCompare(b.name,"vi"));
-
-  $("protocolList").innerHTML=list.length ? list.map(p=>`
-    <li class="protocol-item ${activeId===p.id?"active":""}"
-      onclick="selectProtocol('${p.id}')">
-      <div class="protocol-name">${esc(p.name)}</div>
-      <div class="protocol-meta">
-        ${p.categories.length ? esc(p.categories.join(" • ")) : "Chưa phân loại"}
-        ${p.images.length ? " • 🖼 "+p.images.length+" ảnh" : ""}
-      </div>
-    </li>
-  `).join("") :
-  `<div class="empty-message">Không tìm thấy protocol phù hợp.</div>`;
-
-  $("totalCount").textContent=list.length+" protocol";
+$("total").textContent=data.length+" protocol";
 }
 
-function renderAll(){
-  renderFolders();
-  renderList();
+function render(){
+renderFolders();
+renderList();
 }
-
-function selectProtocol(id){
-  activeId=id;
-  const p=dataList.find(x=>x.id===id);
-  if(!p) return;
-  renderAll();
-  showProtocol(p);
-}
-
-/* ==============================
-   HIỂN THỊ PROTOCOL
-================================ */
 
 function showWelcome(){
-  $("contentTitle").textContent="Nội dung protocol";
-  $("contentActions").innerHTML="";
-  $("contentBody").innerHTML=`
-    <div class="welcome">
-      <div>
-        <div class="welcome-icon">📋</div>
-        <h2>Chưa chọn protocol</h2>
-        <p>Chọn một protocol ở danh sách bên trái<br>
-        hoặc nhấn “Nhập protocol mới” để bắt đầu.</p>
-      </div>
-    </div>`;
+editingId=null;
+$("detailActions").hidden=true;
+$("heading").textContent=folder==="Tất cả"?"Kho protocol":folder;
+$("body").innerHTML=`
+<div class="welcome">
+<div>
+<div class="emoji">📋</div>
+<h2>Chưa có protocol được chọn</h2>
+<p>Chọn protocol ở danh sách bên trái hoặc nhập protocol mới.</p>
+</div>
+</div>`;
 }
 
-function showProtocol(p){
-  $("contentTitle").textContent=p.name;
-  $("contentActions").innerHTML=`
-    <button class="btn btn-outline btn-small" onclick="editProtocol('${p.id}')">✏ Chỉnh sửa</button>
-    <button class="btn btn-outline btn-small" onclick="duplicateProtocol('${p.id}')">▣ Sao chép</button>
-    <button class="btn btn-danger btn-small" onclick="deleteProtocol('${p.id}')">✕ Xóa</button>
-  `;
+function select(id){
+let p=data.find(x=>x.id===id);
+if(!p)return;
 
-  const tags=p.categories.length ?
-    p.categories.map(c=>`<span class="tag">${esc(c)}</span>`).join("") :
-    `<span class="tag">Chưa phân loại</span>`;
+activeId=id;
+editingId=null;
+renderList();
 
-  const images=p.images.length ? `
-    <div class="view-section">
-      <h3>Hình ảnh đính kèm (${p.images.length}/4)</h3>
-      <div class="image-view-grid">
-        ${p.images.map((src,i)=>`
-          <img src="${src}" alt="Hình ảnh ${i+1}" loading="lazy">
-        `).join("")}
-      </div>
-    </div>` : "";
+$("heading").textContent="Chi tiết protocol";
+$("detailActions").hidden=false;
 
-  $("contentBody").innerHTML=`
-    <div class="view-section">
-      <h3>Phân loại</h3>${tags}
-    </div>
-    <div class="view-section">
-      <h3>Nội dung protocol</h3>
-      <div class="view-text">${esc(p.content)||"Chưa có nội dung."}</div>
-    </div>
-    ${p.note ? `
-      <div class="view-section">
-        <h3>Ghi chú</h3>
-        <div class="note-view">${esc(p.note)}</div>
-      </div>` : ""}
-    ${images}
-    <div class="protocol-meta">
-      Ngày cập nhật: ${new Date(p.updatedAt).toLocaleString("vi-VN")}
-    </div>
-  `;
+$("body").innerHTML=`
+<h1 class="detailtitle">${esc(p.name)}</h1>
+<div class="meta">
+${p.categories.map(c=>`<span class="tag">${esc(c)}</span>`).join("")||'<span class="tag">Chưa phân loại</span>'}
+</div>
+<div class="content">${esc(p.content)||"Chưa có nội dung protocol."}</div>
+${p.notes?`
+<div class="section">
+<h3>GHI CHÚ</h3>
+<div class="content">${esc(p.notes)}</div>
+</div>`:""}
+${p.images.length?`
+<div class="section">
+<h3>HÌNH ẢNH ĐÍNH KÈM (${p.images.length}/4)</h3>
+<div class="detailimgs">
+${p.images.map((src,i)=>`
+<img src="${src}" data-image="${i}" alt="Ảnh ${i+1}">
+`).join("")}
+</div>
+</div>`:""}
+<div class="section" style="color:#8796a5;font-size:11px">
+Cập nhật: ${new Date(p.updatedAt).toLocaleString("vi-VN")}
+</div>
+`;
+
+$("body").querySelectorAll("[data-image]").forEach((im,i)=>{
+im.onclick=()=>openImage(p.images[i]);
+});
 }
 
-/* ==============================
-   NHẬP VÀ CHỈNH SỬA
-================================ */
-
-function newProtocol(){
-  editingId=null;
-  draftImages=[];
-  renderForm({
-    name:"",content:"",note:"",categories:[],images:[]
-  });
+function openImage(src){
+$("lightboxImg").src=src;
+$("lightbox").classList.add("show");
 }
 
-function editProtocol(id){
-  const p=dataList.find(x=>x.id===id);
-  if(!p) return;
-  editingId=id;
-  draftImages=[...p.images];
-  renderForm(p);
+$("closeLightbox").onclick=()=>$("lightbox").classList.remove("show");
+
+$("lightbox").onclick=e=>{
+if(e.target===$("lightbox"))$("lightbox").classList.remove("show");
+};
+
+function openForm(p=null){
+editingId=p?.id??null;
+images=p?[...p.images]:[];
+$("heading").textContent=p?"Chỉnh sửa protocol":"Nhập protocol mới";
+$("detailActions").hidden=true;
+renderForm(p);
 }
 
-function renderForm(p){
-  $("contentTitle").textContent=editingId ?
-    "Chỉnh sửa protocol" : "Nhập protocol mới";
+function renderForm(p=null){
+$("body").innerHTML=`
+<form class="form" id="protocolForm">
+<div class="field">
+<label>Tên phẫu thuật, thủ thuật <span class="req">*</span></label>
+<input id="pname" required maxlength="180"
+placeholder="Nhập tên phẫu thuật, thủ thuật..."
+value="${esc(p?.name||"")}">
+</div>
 
-  $("contentActions").innerHTML=`
-    <button class="btn btn-outline btn-small" onclick="cancelForm()">Hủy</button>
-    <button class="btn btn-primary btn-small" onclick="saveProtocol()">✓ Lưu protocol</button>
-  `;
+<div class="field">
+<label>Phân loại protocol <span class="req">*</span></label>
+<div class="dropdown" id="categoryDrop">
+<button type="button" class="dropbtn" id="dropToggle">
+<span id="dropLabel">Chọn một hoặc nhiều nhóm phân loại</span>
+<span>⌄</span>
+</button>
+<div class="dropmenu">
+${CATS.map(c=>`
+<label class="option">
+<input type="checkbox" value="${esc(c)}" class="catcheck"
+${p?.categories.includes(c)?"checked":""}>
+${esc(c)}
+</label>
+`).join("")}
+</div>
+</div>
+<div class="tags" id="selectedTags"></div>
+</div>
 
-  $("contentBody").innerHTML=`
-    <div class="field-group">
-      <label>Tên phẫu thuật, thủ thuật <span style="color:red">*</span></label>
-      <input class="field" id="protocolName"
-        placeholder="Nhập tên phẫu thuật, thủ thuật..."
-        value="${esc(p.name)}">
-    </div>
+<div class="field">
+<label>Nội dung protocol <span class="req">*</span></label>
+<textarea id="pcontent" required placeholder="Nhập nội dung protocol...">${esc(p?.content||"")}</textarea>
+</div>
 
-    <div class="field-group">
-      <label>Phân loại protocol <span style="color:red">*</span></label>
-      <div class="category-grid">
-        ${CATEGORIES.map((c,i)=>`
-          <label class="category-choice">
-            <input type="checkbox" class="category-check"
-              value="${esc(c)}"
-              ${p.categories.includes(c)?"checked":""}>
-            ${esc(c)}
-          </label>
-        `).join("")}
-      </div>
-      <div class="hint">Có thể chọn một hoặc nhiều nhóm phân loại cho cùng một protocol.</div>
-    </div>
+<div class="field">
+<label>Ghi chú</label>
+<textarea class="notes" id="pnotes" placeholder="Nhập ghi chú nếu có...">${esc(p?.notes||"")}</textarea>
+</div>
 
-    <div class="field-group">
-      <label>Nội dung protocol <span style="color:red">*</span></label>
-      <textarea class="field protocol-text" id="protocolContent"
-        placeholder="Nhập nội dung protocol...">${esc(p.content)}</textarea>
-    </div>
+<div class="field">
+<label>Hình ảnh đính kèm <span style="color:#8796a5;font-weight:400">(tối đa 4 ảnh)</span></label>
+<div class="upload" id="upload">
+<div style="font-size:26px">🖼️</div>
+<p>Tải ảnh từ máy tính hoặc dán ảnh bằng <b>Ctrl + V</b>.</p>
+<p>Hỗ trợ tối đa 4 ảnh cho mỗi protocol.</p>
+<button type="button" class="btn" id="choose">＋ Chọn ảnh từ máy tính</button>
+<input type="file" id="imageFiles" accept="image/*" multiple hidden>
+</div>
+<div class="foot" style="border:0;padding:8px 0" id="imageCount"></div>
+<div class="thumbs" id="thumbs"></div>
+</div>
 
-    <div class="field-group">
-      <label>Ghi chú</label>
-      <textarea class="field note-text" id="protocolNote"
-        placeholder="Nhập ghi chú nếu có...">${esc(p.note)}</textarea>
-    </div>
+<div class="formfoot">
+<button type="button" class="btn" id="cancelForm">Hủy</button>
+<button type="submit" class="btn primary">✓ Lưu protocol</button>
+</div>
+</form>
+`;
 
-    <div class="field-group">
-      <label>Hình ảnh đính kèm</label>
-      <div class="image-area" id="imageArea">
-        <div style="font-size:30px;margin-bottom:8px">🖼️</div>
-        <p>
-          Tải ảnh từ máy tính hoặc dán ảnh bằng <b>Ctrl + V</b>.<br>
-          Hỗ trợ tối đa 4 ảnh cho mỗi protocol.
-        </p>
-        <div class="image-buttons">
-          <button type="button" class="btn btn-outline btn-small"
-            onclick="document.getElementById('imageInput').click()">
-            + Chọn ảnh từ máy tính
-          </button>
-        </div>
-        <input type="file" id="imageInput" accept="image/*"
-          multiple hidden onchange="handleImageFiles(this.files)">
-      </div>
-      <div class="hint" id="imageCount"></div>
-      <div class="image-grid" id="imagePreview"></div>
-    </div>
+const dd=$("categoryDrop");
+$("dropToggle").onclick=()=>dd.classList.toggle("open");
 
-    <div style="display:flex;justify-content:flex-end;gap:9px;padding:10px 0">
-      <button class="btn btn-outline" onclick="cancelForm()">Hủy</button>
-      <button class="btn btn-primary" onclick="saveProtocol()">✓ Lưu protocol</button>
-    </div>
-  `;
+dd.querySelectorAll(".catcheck").forEach(ch=>{
+ch.onchange=updateTags;
+});
 
-  renderImagePreview();
-  setupPaste();
-  setupDragDrop();
+updateTags();
+renderImages();
+
+$("choose").onclick=()=>$("imageFiles").click();
+
+$("imageFiles").onchange=e=>{
+addFiles([...e.target.files]);
+};
+
+$("cancelForm").onclick=()=>{
+if(activeId)select(activeId);
+else showWelcome();
+};
+
+const up=$("upload");
+
+up.ondragover=e=>{
+e.preventDefault();
+up.classList.add("drag");
+};
+
+up.ondragleave=()=>up.classList.remove("drag");
+
+up.ondrop=e=>{
+e.preventDefault();
+up.classList.remove("drag");
+addFiles([...e.dataTransfer.files]);
+};
+
+$("protocolForm").onsubmit=e=>{
+e.preventDefault();
+
+let name=$("pname").value.trim();
+let cats=[...document.querySelectorAll(".catcheck:checked")].map(x=>x.value);
+let content=$("pcontent").value.trim();
+
+if(!name||!cats.length||!content){
+toast("Vui lòng nhập tên, chọn phân loại và điền nội dung protocol.");
+return;
 }
 
-function cancelForm(){
-  const p=dataList.find(x=>x.id===editingId);
-  if(p) showProtocol(p);
-  else showWelcome();
+let old=data.find(x=>x.id===editingId);
+
+let obj={
+id:old?.id||uid(),
+name,
+categories:cats,
+content,
+notes:$("pnotes").value.trim(),
+images:[...images],
+createdAt:old?.createdAt||Date.now(),
+updatedAt:Date.now()
+};
+
+let next=old?data.map(x=>x.id===old.id?obj:x):[obj,...data];
+let before=data;
+data=next;
+
+if(!save()){
+data=before;
+return;
 }
 
-/* ==============================
-   XỬ LÝ HÌNH ẢNH
-================================ */
-
-// Giới hạn kích thước và nén ảnh trước khi lưu.
-function compressImage(file){
-  return new Promise((resolve,reject)=>{
-    if(!file.type.startsWith("image/")){
-      reject(new Error("Tệp không phải hình ảnh."));
-      return;
-    }
-
-    const reader=new FileReader();
-
-    reader.onload=()=>{
-      const img=new Image();
-
-      img.onload=()=>{
-        const MAX=1400;
-        let w=img.width,h=img.height;
-
-        if(w>MAX || h>MAX){
-          const ratio=Math.min(MAX/w,MAX/h);
-          w=Math.round(w*ratio);
-          h=Math.round(h*ratio);
-        }
-
-        const canvas=document.createElement("canvas");
-        canvas.width=w;
-        canvas.height=h;
-
-        const ctx=canvas.getContext("2d");
-        ctx.fillStyle="#ffffff";
-        ctx.fillRect(0,0,w,h);
-        ctx.drawImage(img,0,0,w,h);
-
-        resolve(canvas.toDataURL("image/jpeg",0.78));
-      };
-
-      img.onerror=()=>reject(new Error("Không đọc được ảnh."));
-      img.src=reader.result;
-    };
-
-    reader.onerror=()=>reject(new Error("Lỗi đọc tệp ảnh."));
-    reader.readAsDataURL(file);
-  });
+activeId=obj.id;
+folder="Tất cả";
+render();
+select(obj.id);
+toast(old?"Đã cập nhật protocol.":"Đã lưu protocol.");
+};
 }
 
-async function handleImageFiles(files){
-  const selected=Array.from(files || []);
-  if(!selected.length) return;
+function updateTags(){
+let cats=[...document.querySelectorAll(".catcheck:checked")].map(x=>x.value);
 
-  let added=0;
+$("dropLabel").textContent=cats.length
+?cats.join(", ")
+:"Chọn một hoặc nhiều nhóm phân loại";
 
-  for(const file of selected){
-    if(draftImages.length>=4){
-      notify("Mỗi protocol chỉ được đính kèm tối đa 4 ảnh.");
-      break;
-    }
-
-    try{
-      const compressed=await compressImage(file);
-      if(draftImages.length<4){
-        draftImages.push(compressed);
-        added++;
-      }
-    }catch(e){
-      notify("Không thể thêm một hình ảnh. Vui lòng kiểm tra lại.");
-    }
-  }
-
-  renderImagePreview();
-
-  if(added) notify("Đã thêm "+added+" ảnh.");
+$("selectedTags").innerHTML=cats.map(c=>
+`<span class="tag">${esc(c)}</span>`
+).join("");
 }
 
-function renderImagePreview(){
-  const preview=$("imagePreview");
-  const count=$("imageCount");
-  if(!preview || !count) return;
+function renderImages(){
+$("imageCount").textContent=`Đã chọn ${images.length}/4 ảnh.`;
 
-  count.textContent="Đã chọn "+draftImages.length+"/4 ảnh.";
+$("thumbs").innerHTML=images.map((src,i)=>`
+<div class="thumb">
+<img src="${src}" alt="Ảnh ${i+1}">
+<button type="button" data-remove="${i}">×</button>
+</div>
+`).join("");
 
-  preview.innerHTML=draftImages.map((src,i)=>`
-    <div class="image-card">
-      <img src="${src}" alt="Ảnh ${i+1}">
-      <button type="button" onclick="removeImage(${i})" title="Xóa ảnh">×</button>
-      <span>Ảnh ${i+1}</span>
-    </div>
-  `).join("");
+$("thumbs").querySelectorAll("[data-remove]").forEach(b=>{
+b.onclick=()=>{
+images.splice(Number(b.dataset.remove),1);
+renderImages();
+};
+});
 }
 
-function removeImage(index){
-  draftImages.splice(index,1);
-  renderImagePreview();
-  notify("Đã xóa ảnh.");
+function addFiles(files){
+let fs=files.filter(f=>f.type.startsWith("image/"));
+if(!fs.length)return;
+
+let room=4-images.length;
+
+if(room<=0){
+toast("Mỗi protocol chỉ được tối đa 4 ảnh.");
+return;
 }
 
-// Dán ảnh bằng Ctrl + V trong khi đang nhập form.
-function setupPaste(){
-  const body=$("contentBody");
-  body.addEventListener("paste",async event=>{
-    const items=Array.from(event.clipboardData?.items || []);
-    const imageItems=items.filter(item=>item.type.startsWith("image/"));
-
-    if(!imageItems.length) return;
-
-    event.preventDefault();
-
-    const files=imageItems.map(item=>item.getAsFile()).filter(Boolean);
-    await handleImageFiles(files);
-  });
+if(fs.length>room){
+toast("Chỉ thêm được "+room+" ảnh nữa (tối đa 4 ảnh).");
 }
 
-// Kéo thả ảnh từ máy tính.
-function setupDragDrop(){
-  const area=$("imageArea");
+fs.slice(0,room).forEach(file=>{
+let r=new FileReader();
 
-  area.addEventListener("dragover",e=>{
-    e.preventDefault();
-    area.classList.add("dragover");
-  });
+r.onload=()=>{
+images.push(r.result);
+renderImages();
+};
 
-  area.addEventListener("dragleave",()=>{
-    area.classList.remove("dragover");
-  });
-
-  area.addEventListener("drop",async e=>{
-    e.preventDefault();
-    area.classList.remove("dragover");
-    await handleImageFiles(e.dataTransfer.files);
-  });
+r.readAsDataURL(file);
+});
 }
 
-/* ==============================
-   LƯU PROTOCOL
-================================ */
+document.addEventListener("paste",e=>{
+if($("protocolForm")){
+let items=[...(e.clipboardData?.items||[])];
 
-function saveProtocol(){
-  const name=$("protocolName").value.trim();
-  const content=$("protocolContent").value.trim();
-  const note=$("protocolNote").value.trim();
+let files=items
+.filter(i=>i.type.startsWith("image/"))
+.map(i=>i.getAsFile())
+.filter(Boolean);
 
-  const categories=Array.from(
-    document.querySelectorAll(".category-check:checked")
-  ).map(x=>x.value);
+if(files.length){
+e.preventDefault();
+addFiles(files);
+}
+}
+});
 
-  if(!name){
-    notify("Vui lòng nhập tên phẫu thuật, thủ thuật.");
-    $("protocolName").focus();
-    return;
-  }
+$("new").onclick=()=>openForm();
 
-  if(!categories.length){
-    notify("Vui lòng chọn ít nhất một nhóm phân loại.");
-    return;
-  }
+$("search").oninput=renderList;
 
-  if(!content){
-    notify("Vui lòng nhập nội dung protocol.");
-    $("protocolContent").focus();
-    return;
-  }
+$("edit").onclick=()=>{
+let p=data.find(x=>x.id===activeId);
+if(p)openForm(p);
+};
 
-  const duplicateName=dataList.some(p=>
-    p.id!==editingId && p.name.toLowerCase()===name.toLowerCase()
-  );
+$("copy").onclick=()=>{
+let p=data.find(x=>x.id===activeId);
+if(!p)return;
 
-  if(duplicateName && !confirm("Đã có protocol cùng tên. Bạn vẫn muốn lưu?")){
-    return;
-  }
+let clone={
+...p,
+id:uid(),
+name:p.name+" (Bản sao)",
+images:[...p.images],
+createdAt:Date.now(),
+updatedAt:Date.now()
+};
 
-  const now=new Date().toISOString();
-  let p;
+data.unshift(clone);
 
-  if(editingId){
-    p=dataList.find(x=>x.id===editingId);
-    if(!p) return;
+if(save()){
+folder="Tất cả";
+render();
+select(clone.id);
+toast("Đã sao chép protocol.");
+}
+};
 
-    p.name=name;
-    p.content=content;
-    p.note=note;
-    p.categories=categories;
-    p.images=[...draftImages];
-    p.updatedAt=now;
-  }else{
-    p={
-      id:uid(),
-      name,content,note,categories,
-      images:[...draftImages],
-      createdAt:now,
-      updatedAt:now
-    };
-    dataList.push(p);
-  }
-
-  if(!saveData()) return;
-
-  activeId=p.id;
-  activeFolder="Tất cả";
-  $("searchInput").value="";
-  editingId=null;
-  draftImages=[];
-
-  renderAll();
-  showProtocol(p);
-  notify("Đã lưu protocol thành công.");
+function ask(title,message,fn){
+$("modalTitle").textContent=title;
+$("modalText").textContent=message;
+modalAction=fn;
+$("modal").classList.add("show");
 }
 
-/* ==============================
-   SAO CHÉP VÀ XÓA
-================================ */
+$("delete").onclick=()=>ask(
+"Xóa protocol",
+"Bạn có chắc chắn muốn xóa protocol này? Thao tác này không thể hoàn tác.",
+()=>{
+data=data.filter(x=>x.id!==activeId);
+activeId=null;
+save();
+render();
+showWelcome();
+toast("Đã xóa protocol.");
+}
+);
 
-function duplicateProtocol(id){
-  const p=dataList.find(x=>x.id===id);
-  if(!p) return;
+$("cancelModal").onclick=()=>{
+$("modal").classList.remove("show");
+};
 
-  const copy={
-    ...p,
-    id:uid(),
-    name:p.name+" (Bản sao)",
-    categories:[...p.categories],
-    images:[...p.images],
-    createdAt:new Date().toISOString(),
-    updatedAt:new Date().toISOString()
-  };
+$("confirmModal").onclick=()=>{
+$("modal").classList.remove("show");
+if(modalAction)modalAction();
+modalAction=null;
+};
 
-  dataList.push(copy);
+$("export").onclick=()=>{
+let blob=new Blob(
+[JSON.stringify({
+version:1,
+exportedAt:new Date().toISOString(),
+protocols:data
+},null,2)],
+{type:"application/json"}
+);
 
-  if(!saveData()){
-    dataList.pop();
-    return;
-  }
+let url=URL.createObjectURL(blob);
+let a=document.createElement("a");
 
-  activeId=copy.id;
-  activeFolder="Tất cả";
-  renderAll();
-  showProtocol(copy);
-  notify("Đã sao chép protocol và hình ảnh.");
+a.href=url;
+a.download="cong-cu-y-khoa-backup.json";
+a.click();
+
+URL.revokeObjectURL(url);
+toast("Đã xuất dữ liệu sao lưu.");
+};
+
+$("import").onclick=()=>$("importFile").click();
+
+$("importFile").onchange=e=>{
+let f=e.target.files[0];
+if(!f)return;
+
+let r=new FileReader();
+
+r.onload=()=>{
+try{
+let obj=JSON.parse(r.result);
+let arr=Array.isArray(obj)?obj:(obj.protocols||obj.dataList);
+
+if(!Array.isArray(arr))throw Error();
+
+let incoming=arr.map(normalize).filter(x=>x&&x.name);
+let map=new Map(data.map(x=>[x.id,x]));
+
+incoming.forEach(x=>map.set(x.id,x));
+data=[...map.values()];
+
+if(save()){
+render();
+showWelcome();
+toast("Đã nhập "+incoming.length+" protocol.");
 }
 
-function deleteProtocol(id){
-  const p=dataList.find(x=>x.id===id);
-  if(!p) return;
-
-  askConfirm(
-    "Xóa protocol",
-    "Bạn có chắc chắn muốn xóa protocol “"+p.name+"”? Thao tác này không thể hoàn tác.",
-    ()=>{
-      const old=dataList;
-      dataList=dataList.filter(x=>x.id!==id);
-
-      if(!saveData()){
-        dataList=old;
-        return;
-      }
-
-      activeId=null;
-      renderAll();
-      showWelcome();
-      notify("Đã xóa protocol.");
-    }
-  );
+}catch(err){
+toast("File dữ liệu không đúng định dạng.");
 }
+};
 
-function askConfirm(title,text,action){
-  $("modalTitle").textContent=title;
-  $("modalText").textContent=text;
-  modalAction=action;
-  $("confirmModal").classList.add("show");
-  $("confirmButton").onclick=()=>{
-    closeModal();
-    if(modalAction) modalAction();
-    modalAction=null;
-  };
-}
+r.readAsText(f);
+e.target.value="";
+};
 
-function closeModal(){
-  $("confirmModal").classList.remove("show");
-  modalAction=null;
-}
-
-/* ==============================
-   XUẤT DỮ LIỆU
-================================ */
-
-function exportData(){
-  try{
-    const payload={
-      app:"CONG_CU_Y_KHOA",
-      version:4,
-      exportedAt:new Date().toISOString(),
-      protocols:dataList
-    };
-
-    const blob=new Blob(
-      [JSON.stringify(payload,null,2)],
-      {type:"application/json"}
-    );
-
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement("a");
-    a.href=url;
-    a.download="Cong_cu_y_khoa_"+new Date().toISOString().slice(0,10)+".json";
-    a.click();
-    URL.revokeObjectURL(url);
-    notify("Đã xuất dữ liệu protocol và hình ảnh.");
-  }catch(e){
-    notify("Không thể xuất dữ liệu.");
-  }
-}
-
-/* ==============================
-   NHẬP DỮ LIỆU
-================================ */
-
-function importData(event){
-  const file=event.target.files[0];
-  if(!file) return;
-
-  const reader=new FileReader();
-
-  reader.onload=()=>{
-    try{
-      const parsed=JSON.parse(reader.result);
-
-      let incoming=Array.isArray(parsed) ? parsed :
-        Array.isArray(parsed.protocols) ? parsed.protocols : null;
-
-      if(!incoming) throw new Error("Sai cấu trúc dữ liệu.");
-
-      const normalized=incoming.map(normalizeProtocol);
-
-      askConfirm(
-        "Nhập dữ liệu",
-        "Bạn muốn nhập "+normalized.length+
-        " protocol? Các protocol cùng ID sẽ được cập nhật, các protocol khác được giữ lại.",
-        ()=>{
-          const old=[...dataList];
-
-          normalized.forEach(p=>{
-            const index=dataList.findIndex(x=>x.id===p.id);
-            if(index>=0) dataList[index]=p;
-            else dataList.push(p);
-          });
-
-          if(!saveData()){
-            dataList=old;
-            return;
-          }
-
-          activeId=null;
-          activeFolder="Tất cả";
-          renderAll();
-          showWelcome();
-          notify("Đã nhập dữ liệu thành công.");
-        }
-      );
-
-    }catch(e){
-      notify("File không hợp lệ hoặc không đọc được.");
-    }
-
-    event.target.value="";
-  };
-
-  reader.readAsText(file);
-}
-
-/* ==============================
-   KHỞI ĐỘNG
-================================ */
-
-loadData();
+load();
+render();
 showWelcome();
 
+})();
 </script>
 </body>
 </html>
