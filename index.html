@@ -1,0 +1,658 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CÔNG CỤ Y KHOA</title>
+<style>
+:root {
+  --blue:#087fbd;
+  --blue-dark:#06699f;
+  --blue-soft:#e8f5fc;
+  --bg:#f1f5f9;
+  --border:#d5dee8;
+  --text:#172033;
+  --muted:#64748b;
+  --danger:#dc3d45;
+  --green:#0b9b70;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;height:100vh;min-height:420px;overflow:hidden;
+  display:flex;flex-direction:column;
+  background:var(--bg);color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+}
+button,input,textarea { font:inherit; }
+button { cursor:pointer; }
+
+.app-header {
+  min-height:66px;padding:10px 20px;background:#fff;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.brand {
+  color:var(--blue);font-size:21px;font-weight:800;
+  white-space:nowrap;
+}
+.header-actions {
+  display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;
+}
+.app-main { flex:1;min-height:0;padding:14px; }
+.tab-panel { height:100%;display:flex;flex-direction:column; }
+.tab-heading {
+  min-height:50px;display:flex;align-items:center;gap:20px;
+  border-bottom:2px solid var(--border);margin-bottom:12px;
+}
+.tab-title {
+  height:50px;padding:0 16px;display:inline-flex;align-items:center;
+  color:var(--blue);font-size:17px;font-weight:700;
+  border-bottom:3px solid var(--blue);
+}
+.workspace {
+  flex:1;min-height:0;
+  display:grid;grid-template-columns:350px minmax(0,1fr);gap:14px;
+}
+.sidebar,.detail {
+  background:#fff;border:1px solid var(--border);
+  border-radius:11px;min-height:0;overflow:hidden;
+}
+.sidebar { display:flex;flex-direction:column; }
+.sidebar-tools {
+  padding:12px;display:flex;flex-direction:column;gap:9px;
+  border-bottom:1px solid #e5ebf1;
+}
+.search {
+  width:100%;height:43px;padding:0 12px;
+  border:1px solid var(--border);border-radius:8px;
+  outline:none;font-size:15px;
+}
+.search:focus,.field input:focus,.field textarea:focus {
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px #087fbd18;outline:none;
+}
+.protocol-list {
+  list-style:none;padding:0;margin:0;overflow-y:auto;flex:1;
+}
+.protocol-item {
+  padding:13px 14px;border-bottom:1px solid #edf1f5;
+  cursor:pointer;overflow-wrap:anywhere;
+}
+.protocol-item:hover { background:#f7fbfe; }
+.protocol-item.active {
+  background:var(--blue-soft);border-left:4px solid var(--blue);
+  padding-left:10px;
+}
+.protocol-name { font-weight:700;font-size:14px;line-height:1.4; }
+.protocol-meta { color:var(--muted);font-size:12px;margin-top:5px; }
+
+.detail { display:flex;flex-direction:column; }
+.detail-head {
+  min-height:62px;padding:11px 16px;background:#f8fafc;
+  border-bottom:1px solid #e5ebf1;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.detail-title {
+  font-weight:700;font-size:17px;overflow-wrap:anywhere;
+}
+.actions { display:flex;flex-wrap:wrap;gap:7px;justify-content:flex-end; }
+.btn {
+  border:1px solid transparent;border-radius:8px;
+  padding:9px 13px;font-size:13px;font-weight:700;
+  background:#fff;color:var(--text);
+}
+.btn:disabled { opacity:.55;cursor:not-allowed; }
+.btn-primary { background:var(--blue);color:#fff; }
+.btn-primary:hover { background:var(--blue-dark); }
+.btn-outline { border-color:var(--border); }
+.btn-outline:hover { background:#f1f5f9; }
+.btn-success { background:var(--green);color:#fff; }
+.btn-danger { background:var(--danger);color:#fff; }
+.btn-block { width:100%; }
+
+.detail-body { padding:20px;overflow-y:auto;flex:1; }
+.empty-state {
+  height:100%;min-height:250px;display:flex;
+  flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;
+  padding:24px;color:var(--muted);
+}
+.empty-icon { font-size:42px;margin-bottom:12px; }
+.empty-state strong {
+  color:#334155;font-size:17px;margin-bottom:7px;
+}
+.view-section { margin-bottom:22px; }
+.view-label {
+  color:#334155;font-weight:700;font-size:14px;margin-bottom:9px;
+}
+.view-content {
+  white-space:pre-wrap;overflow-wrap:anywhere;
+  line-height:1.65;font-size:15px;color:#263244;
+}
+.note-box {
+  background:#fffbeb;border-left:4px solid #e9a21a;
+  border-radius:6px;padding:12px 14px;
+  white-space:pre-wrap;line-height:1.55;color:#744b0b;
+}
+.form-wrap { max-width:1000px; }
+.form-intro { color:var(--muted);font-size:13px;margin:0 0 18px; }
+.field {
+  display:flex;flex-direction:column;gap:7px;margin-bottom:18px;
+}
+.field label { font-size:14px;font-weight:700;color:#334155; }
+.field input,.field textarea {
+  width:100%;border:1px solid var(--border);
+  border-radius:8px;padding:11px 12px;
+  font-size:14px;line-height:1.5;color:var(--text);
+}
+.field textarea { min-height:260px;resize:vertical; }
+.field textarea.note-input { min-height:100px; }
+.required { color:var(--danger); }
+.toast {
+  position:fixed;right:18px;bottom:18px;z-index:20;
+  padding:12px 16px;background:#172033;color:#fff;
+  border-radius:8px;box-shadow:0 8px 24px #0002;
+  opacity:0;transform:translateY(8px);
+  pointer-events:none;transition:.2s;
+  max-width:min(420px,calc(100vw - 36px));font-size:14px;
+}
+.toast.show { opacity:1;transform:translateY(0); }
+.footer-hint {
+  color:var(--muted);font-size:12px;padding:8px 12px;
+  border-top:1px solid #edf1f5;
+}
+
+@media(max-width:760px) {
+  body { height:100dvh;overflow:auto; }
+  .app-header {
+    align-items:flex-start;flex-direction:column;padding:12px;
+  }
+  .header-actions { justify-content:flex-start; }
+  .app-main { min-height:0;padding:9px; }
+  .tab-heading { margin-bottom:8px; }
+  .workspace {
+    grid-template-columns:1fr;
+    grid-template-rows:minmax(180px,35%) minmax(360px,1fr);
+  }
+  .detail-head { align-items:flex-start;flex-direction:column; }
+  .actions { justify-content:flex-start; }
+  .detail-body { padding:14px; }
+}
+</style>
+</head>
+
+<body>
+
+<header class="app-header">
+  <div class="brand">CÔNG CỤ Y KHOA</div>
+  <div class="header-actions">
+    <button class="btn btn-outline" id="btnExport" type="button">Xuất dữ liệu</button>
+    <button class="btn btn-outline" id="btnImport" type="button">Nhập dữ liệu</button>
+    <input id="fileInput" type="file" accept=".json,application/json" hidden>
+  </div>
+</header>
+
+<main class="app-main">
+  <section class="tab-panel">
+    <div class="tab-heading">
+      <div class="tab-title">Protocol phẫu thuật, thủ thuật</div>
+    </div>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <div class="sidebar-tools">
+          <button class="btn btn-primary btn-block" id="btnNew" type="button">
+            ＋ Nhập protocol mới
+          </button>
+          <input class="search" id="txtSearch" type="search"
+            placeholder="Tìm tên phẫu thuật, thủ thuật..." autocomplete="off">
+        </div>
+
+        <ul class="protocol-list" id="protocolList"></ul>
+        <div class="footer-hint" id="countLabel">0 protocol</div>
+      </aside>
+
+      <section class="detail" id="detailPanel" aria-live="polite"></section>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+"use strict";
+
+// Giữ khóa cũ để tương thích dữ liệu đã lưu trên trình duyệt.
+const STORE_KEY = "cong_cu_y_khoa_protocols_vi_v3";
+
+let protocols = [];
+let selectedId = null;
+let toastTimer = null;
+
+const $ = id => document.getElementById(id);
+
+function makeId() {
+  return "p_" + Date.now().toString(36) + "_" +
+    Math.random().toString(36).slice(2,8);
+}
+
+function showToast(message) {
+  const toast = $("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("show"),2600);
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g,char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[char]);
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+
+    protocols = Array.isArray(parsed) ? parsed.map((item,index) => ({
+      id:String(item.id || ("old_" + index + "_" + Date.now())),
+      title:String(item.title || ""),
+      content:String(item.content || ""),
+      note:String(item.note || ""),
+      time:String(item.time || "")
+    })) : [];
+
+  } catch(error) {
+    protocols = [];
+    showToast("Không đọc được dữ liệu lưu. Bạn có thể nhập lại từ file sao lưu JSON.");
+  }
+}
+
+function saveData() {
+  try {
+    localStorage.setItem(STORE_KEY,JSON.stringify(protocols));
+    return true;
+  } catch(error) {
+    showToast("Không thể lưu dữ liệu. Bộ nhớ trình duyệt có thể đã đầy.");
+    return false;
+  }
+}
+
+function renderList() {
+  const list = $("protocolList");
+  const keyword = $("txtSearch").value.trim().toLocaleLowerCase("vi");
+
+  const filtered = protocols.filter(item =>
+    item.title.toLocaleLowerCase("vi").includes(keyword)
+  );
+
+  list.innerHTML = "";
+
+  if(filtered.length === 0) {
+    const li = document.createElement("li");
+    li.className = "protocol-item";
+    li.style.cursor = "default";
+    li.style.color = "#64748b";
+    li.textContent = protocols.length
+      ? "Không tìm thấy protocol phù hợp."
+      : "Chưa có protocol. Bấm “Nhập protocol mới” để bắt đầu.";
+    list.appendChild(li);
+
+  } else {
+    filtered.forEach(item => {
+      const li = document.createElement("li");
+      li.className = "protocol-item" +
+        (item.id === selectedId ? " active" : "");
+
+      li.tabIndex = 0;
+      li.setAttribute("role","button");
+      li.setAttribute("aria-label","Mở protocol " + item.title);
+
+      li.innerHTML =
+        '<div class="protocol-name">' + escapeHTML(item.title) + '</div>' +
+        '<div class="protocol-meta">' +
+        (item.note ? "Có ghi chú · " : "") +
+        escapeHTML(item.time || "Chưa rõ thời gian") +
+        '</div>';
+
+      li.addEventListener("click",() => showProtocol(item.id));
+
+      li.addEventListener("keydown",event => {
+        if(event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          showProtocol(item.id);
+        }
+      });
+
+      list.appendChild(li);
+    });
+  }
+
+  $("countLabel").textContent = protocols.length + " protocol";
+}
+
+function renderEmpty(message = "Chọn một protocol để xem nội dung") {
+  $("detailPanel").innerHTML =
+    '<div class="empty-state">' +
+      '<div class="empty-icon">📋</div>' +
+      '<strong>' + escapeHTML(message) + '</strong>' +
+      '<span>Nội dung protocol sẽ hiển thị tại khu vực này.</span>' +
+    '</div>';
+}
+
+function showProtocol(id) {
+  const item = protocols.find(protocol => protocol.id === id);
+
+  if(!item) {
+    selectedId = null;
+    renderList();
+    renderEmpty();
+    return;
+  }
+
+  selectedId = item.id;
+  renderList();
+
+  const head = document.createElement("div");
+  head.className = "detail-head";
+
+  head.innerHTML =
+    '<div class="detail-title">' + escapeHTML(item.title) + '</div>' +
+    '<div class="actions">' +
+      '<button class="btn btn-outline" id="btnEdit" type="button">Chỉnh sửa</button>' +
+      '<button class="btn btn-outline" id="btnCopy" type="button">Sao chép protocol</button>' +
+      '<button class="btn btn-danger" id="btnDelete" type="button">Xóa protocol</button>' +
+    '</div>';
+
+  const body = document.createElement("div");
+  body.className = "detail-body";
+
+  body.innerHTML =
+    '<div class="view-section">' +
+      '<div class="view-label">Nội dung protocol</div>' +
+      '<div class="view-content">' + escapeHTML(item.content) + '</div>' +
+    '</div>' +
+    (item.note
+      ? '<div class="view-section">' +
+          '<div class="view-label">Ghi chú</div>' +
+          '<div class="note-box">' + escapeHTML(item.note) + '</div>' +
+        '</div>'
+      : "");
+
+  $("detailPanel").replaceChildren(head,body);
+
+  $("btnEdit").addEventListener("click",() => openForm(item.id));
+  $("btnCopy").addEventListener("click",() => copyProtocol(item.id));
+  $("btnDelete").addEventListener("click",() => deleteProtocol(item.id));
+}
+
+function openForm(editId = null) {
+  const existing = editId
+    ? protocols.find(item => item.id === editId)
+    : null;
+
+  const current = existing || {
+    title:"",
+    content:"",
+    note:""
+  };
+
+  const head = document.createElement("div");
+  head.className = "detail-head";
+
+  head.innerHTML =
+    '<div class="detail-title">' +
+      (existing ? "Chỉnh sửa protocol" : "Nhập protocol mới") +
+    '</div>' +
+    '<div class="actions">' +
+      '<button class="btn btn-outline" id="btnCancel" type="button">Hủy</button>' +
+      '<button class="btn btn-success" id="btnSave" type="button">Lưu protocol</button>' +
+    '</div>';
+
+  const body = document.createElement("div");
+  body.className = "detail-body";
+
+  body.innerHTML =
+    '<div class="form-wrap">' +
+      '<p class="form-intro">Nhập đầy đủ thông tin cần thiết. Các trường có dấu <span class="required">*</span> là bắt buộc.</p>' +
+
+      '<div class="field">' +
+        '<label for="fieldTitle">Tên phẫu thuật, thủ thuật <span class="required">*</span></label>' +
+        '<input id="fieldTitle" type="text" maxlength="250" ' +
+        'placeholder="Ví dụ: Kết hợp xương nẹp vít..." ' +
+        'value="' + escapeHTML(current.title) + '">' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label for="fieldContent">Nội dung protocol <span class="required">*</span></label>' +
+        '<textarea id="fieldContent" placeholder="Nhập nội dung protocol...">' +
+          escapeHTML(current.content) +
+        '</textarea>' +
+      '</div>' +
+
+      '<div class="field">' +
+        '<label for="fieldNote">Ghi chú</label>' +
+        '<textarea class="note-input" id="fieldNote" placeholder="Nhập ghi chú nếu có...">' +
+          escapeHTML(current.note) +
+        '</textarea>' +
+      '</div>' +
+    '</div>';
+
+  $("detailPanel").replaceChildren(head,body);
+  $("fieldTitle").focus();
+
+  $("btnCancel").addEventListener("click",() => {
+    if(existing) {
+      showProtocol(existing.id);
+    } else if(selectedId) {
+      showProtocol(selectedId);
+    } else {
+      renderEmpty("Bạn chưa tạo protocol");
+    }
+  });
+
+  $("btnSave").addEventListener("click",() => {
+    const title = $("fieldTitle").value.trim();
+    const content = $("fieldContent").value.trim();
+    const note = $("fieldNote").value.trim();
+
+    if(!title) {
+      showToast("Vui lòng nhập tên phẫu thuật, thủ thuật.");
+      $("fieldTitle").focus();
+      return;
+    }
+
+    if(!content) {
+      showToast("Vui lòng nhập nội dung protocol.");
+      $("fieldContent").focus();
+      return;
+    }
+
+    const now = new Date().toLocaleString("vi-VN");
+
+    if(existing) {
+      existing.title = title;
+      existing.content = content;
+      existing.note = note;
+      existing.time = now;
+      selectedId = existing.id;
+
+    } else {
+      const created = {
+        id:makeId(),
+        title:title,
+        content:content,
+        note:note,
+        time:now
+      };
+
+      protocols.unshift(created);
+      selectedId = created.id;
+    }
+
+    if(saveData()) {
+      renderList();
+      showProtocol(selectedId);
+      showToast(existing
+        ? "Đã cập nhật protocol."
+        : "Đã lưu protocol mới.");
+    }
+  });
+}
+
+function copyProtocol(id) {
+  const original = protocols.find(item => item.id === id);
+  if(!original) return;
+
+  const copy = {
+    id:makeId(),
+    title:original.title + " (Bản sao)",
+    content:original.content,
+    note:original.note,
+    time:new Date().toLocaleString("vi-VN")
+  };
+
+  protocols.unshift(copy);
+
+  if(saveData()) {
+    selectedId = copy.id;
+    renderList();
+    showProtocol(copy.id);
+    showToast("Đã sao chép protocol.");
+  }
+}
+
+function deleteProtocol(id) {
+  const item = protocols.find(protocol => protocol.id === id);
+  if(!item) return;
+
+  const confirmed = window.confirm(
+    'Bạn có chắc muốn xóa protocol "' + item.title + '" không?\n' +
+    'Thao tác này không thể hoàn tác nếu bạn chưa xuất file sao lưu.'
+  );
+
+  if(!confirmed) return;
+
+  protocols = protocols.filter(protocol => protocol.id !== id);
+  selectedId = protocols.length ? protocols[0].id : null;
+
+  if(saveData()) {
+    renderList();
+
+    if(selectedId) {
+      showProtocol(selectedId);
+    } else {
+      renderEmpty("Chưa có protocol nào");
+    }
+
+    showToast("Đã xóa protocol.");
+  }
+}
+
+function exportData() {
+  const blob = new Blob(
+    [JSON.stringify(protocols,null,2)],
+    {type:"application/json;charset=utf-8"}
+  );
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download =
+    "sao-luu-protocol-y-khoa-" +
+    new Date().toISOString().slice(0,10) + ".json";
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url),1000);
+  showToast("Đã xuất file sao lưu dữ liệu.");
+}
+
+function importData(file) {
+  if(!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    try {
+      const imported = JSON.parse(String(reader.result || ""));
+
+      if(!Array.isArray(imported)) {
+        throw new Error("Dữ liệu không đúng định dạng.");
+      }
+
+      const cleaned = imported.map((item,index) => ({
+        id:String(item.id || ("import_" + index + "_" + Date.now())),
+        title:String(item.title || ""),
+        content:String(item.content || ""),
+        note:String(item.note || ""),
+        time:String(item.time || new Date().toLocaleString("vi-VN"))
+      })).filter(item => item.title && item.content);
+
+      if(!window.confirm(
+        "Tìm thấy " + cleaned.length +
+        " protocol hợp lệ. Nhập dữ liệu sẽ thay thế dữ liệu hiện có trên trình duyệt này. Bạn có muốn tiếp tục?"
+      )) return;
+
+      protocols = cleaned;
+      selectedId = protocols.length ? protocols[0].id : null;
+
+      if(saveData()) {
+        renderList();
+
+        if(selectedId) {
+          showProtocol(selectedId);
+        } else {
+          renderEmpty("File không có protocol hợp lệ");
+        }
+
+        showToast("Đã nhập dữ liệu thành công.");
+      }
+
+    } catch(error) {
+      showToast("File JSON không hợp lệ hoặc không đúng định dạng sao lưu.");
+
+    } finally {
+      $("fileInput").value = "";
+    }
+  };
+
+  reader.onerror = () => showToast("Không đọc được file đã chọn.");
+  reader.readAsText(file,"UTF-8");
+}
+
+// Gắn sự kiện cho các nút
+$("btnNew").addEventListener("click",() => openForm());
+$("txtSearch").addEventListener("input",renderList);
+$("btnExport").addEventListener("click",exportData);
+$("btnImport").addEventListener("click",() => $("fileInput").click());
+
+$("fileInput").addEventListener("change",event => {
+  importData(event.target.files[0]);
+});
+
+// Khởi động công cụ
+loadData();
+renderList();
+
+if(protocols.length) {
+  showProtocol(protocols[0].id);
+} else {
+  renderEmpty("Chưa có protocol nào");
+}
+
+})();
+</script>
+
+</body>
+</html>
