@@ -55,13 +55,10 @@ input:focus,textarea:focus,select:focus,.editor:focus{border-color:#76bddd;box-s
 .req{color:var(--red)}
 .field textarea{resize:vertical;min-height:220px;line-height:1.65}
 .field textarea.notes{min-height:85px}
-.dropdown{position:relative}
-.dropbtn{width:100%;text-align:left;display:flex;justify-content:space-between;border:1px solid var(--line);border-radius:10px;background:white;padding:12px;color:var(--ink)}
-.dropmenu{display:none;position:absolute;z-index:10;top:calc(100% + 5px);left:0;right:0;background:white;border:1px solid var(--line);border-radius:11px;padding:7px;box-shadow:0 12px 28px #14324b24}
-.dropdown.open .dropmenu{display:block}
-.option{display:flex;gap:9px;align-items:center;padding:9px;border-radius:8px;font-size:13px}
-.option:hover{background:#f2f8fc}
-.option input{accent-color:var(--blue)}
+.category-options{display:flex;gap:8px;flex-wrap:wrap}
+.category-choice{border:1px solid var(--line);background:white;color:var(--ink);padding:9px 13px;border-radius:9px;font-size:13px;font-weight:600;transition:.15s}
+.category-choice:hover{border-color:#91c8e2;background:#f7fbfd}
+.category-choice.active{background:var(--soft);border-color:var(--blue);color:var(--blue);font-weight:700}
 .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
 .tag{background:var(--soft);color:#086b9f;border-radius:20px;padding:4px 9px;font-size:11px;font-weight:700}
 .upload{border:2px dashed #b8d5e5;border-radius:12px;background:#f8fcfe;padding:20px;text-align:center}
@@ -76,8 +73,10 @@ input:focus,textarea:focus,select:focus,.editor:focus{border-color:#76bddd;box-s
 .meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
 .content{white-space:pre-wrap;line-height:1.75;font-size:14px;overflow-wrap:anywhere}
 .content.rich{white-space:normal}
-.content.rich ul,.content.rich ol{padding-left:25px}
-.content.rich p{margin:7px 0}
+.content.rich ul,.content.rich ol{padding-left:25px;margin:6px 0}
+.content.rich p,.content.rich div,.content.rich li{margin:4px 0;line-height:1.7}
+.content.rich blockquote{margin:6px 0 6px 24px;padding-left:12px;border-left:2px solid #dce6ef}
+.content.rich blockquote blockquote{margin-left:18px}
 .section{margin-top:20px}
 .section h3{font-size:13px;margin:0 0 8px}
 .detailimgs{display:grid;grid-template-columns:repeat(4,minmax(0,180px));gap:10px}
@@ -108,7 +107,10 @@ input:focus,textarea:focus,select:focus,.editor:focus{border-color:#76bddd;box-s
 .editorToolbar input[type=color]{width:35px;height:31px;padding:2px;border:1px solid var(--line);border-radius:6px}
 .editor{border:1px solid var(--line);border-radius:0 0 10px 10px;padding:13px;min-height:240px;line-height:1.7;outline:none;font-size:14px;overflow-wrap:anywhere}
 .editor:empty:before{content:attr(data-placeholder);color:#9aa9b7}
-.editor ul,.editor ol{padding-left:25px}
+.editor ul,.editor ol{padding-left:25px;margin:6px 0}
+.editor p,.editor div,.editor li{margin:4px 0;line-height:1.7}
+.editor blockquote{margin:6px 0 6px 24px;padding-left:12px;border-left:2px solid #dce6ef}
+.editor blockquote blockquote{margin-left:18px}
 .smallhint{font-size:12px;color:var(--muted);margin-top:5px}
 [hidden]{display:none!important}
 @media(max-width:850px){
@@ -202,7 +204,6 @@ main{padding:12px}.workspace{grid-template-columns:1fr}
 </div>
 <div class="body" id="cBody">
 <div class="welcome"><div><div class="emoji">🦴</div><h2>Kho phân loại, phân độ CTCH</h2><p>Chọn một mục bên trái hoặc thêm nội dung mới.</p></div></div>
-</div>
 </section>
 </section>
 </main>
@@ -268,10 +269,11 @@ if(typeof cats==="string")cats=[cats];
 if(!Array.isArray(cats))cats=[];
 let pics=x.images??x.photos??[];
 if(!Array.isArray(pics))pics=[];
+let firstCategory=CATS.find(v=>cats.includes(v));
 return{
 id:String(x.id??uid("p")),
 name:String(x.name??x.title??x.ten??""),
-categories:cats.filter(v=>CATS.includes(v)),
+categories:firstCategory?[firstCategory]:[],
 content:String(x.content??x.protocol??x.noiDung??""),
 notes:String(x.notes??x.note??x.ghiChu??""),
 images:pics.slice(0,4).map(v=>typeof v==="string"?v:(v?.dataUrl??v?.src??"")).filter(Boolean),
@@ -328,7 +330,7 @@ toast("Máy chủ chưa sẵn sàng. Vui lòng thử lại.");
 return false;
 }
 const snapshot=arr.map(p=>({...p}));
-saveQueue=saveQueue.then(()=>uploadRows(table,snapshot));
+saveQueue=saveQueue.catch(()=>{}).then(()=>uploadRows(table,snapshot));
 try{
 await saveQueue;
 writeLocal();
@@ -496,33 +498,42 @@ $("heading").textContent=p?"Chỉnh sửa protocol":"Nhập protocol mới";
 $("detailActions").hidden=true;renderForm(p);
 }
 function renderForm(p=null){
+let selectedCategory=p?.categories?.[0]||"";
 $("body").innerHTML=`
 <form class="form" id="protocolForm">
 <div class="field"><label>Tên phẫu thuật, thủ thuật <span class="req">*</span></label>
 <input id="pname" required maxlength="180" placeholder="Nhập tên phẫu thuật, thủ thuật..." value="${esc(p?.name||"")}"></div>
 <div class="field"><label>Phân loại protocol <span class="req">*</span></label>
-<div class="dropdown" id="categoryDrop">
-<button type="button" class="dropbtn" id="dropToggle"><span id="dropLabel">Chọn một hoặc nhiều nhóm phân loại</span><span>⌄</span></button>
-<div class="dropmenu">${CATS.map(c=>`<label class="option"><input type="checkbox" value="${esc(c)}" class="catcheck" ${p?.categories.includes(c)?"checked":""}>${esc(c)}</label>`).join("")}</div>
-</div><div class="tags" id="selectedTags"></div></div>
+<div class="category-options" id="categoryOptions">
+${CATS.map(c=>`<button type="button" class="category-choice ${selectedCategory===c?"active":""}" data-category="${esc(c)}">${esc(c)}</button>`).join("")}
+</div>
+<div class="tags" id="selectedTags">${selectedCategory?`<span class="tag">${esc(selectedCategory)}</span>`:""}</div>
+</div>
 <div class="field"><label>Nội dung protocol <span class="req">*</span></label>
 <textarea id="pcontent" required placeholder="Nhập nội dung protocol...">${esc(p?.content||"")}</textarea></div>
 <div class="field"><label>Ghi chú</label><textarea class="notes" id="pnotes" placeholder="Nhập ghi chú nếu có...">${esc(p?.notes||"")}</textarea></div>
 ${imageUploadMarkup("upload","choose","imageFiles","imageCount","thumbs","Chọn ảnh từ máy tính")}
 <div class="formfoot"><button type="button" class="btn" id="cancelForm">Hủy</button><button type="submit" class="btn primary">✓ Lưu protocol</button></div>
 </form>`;
-const dd=$("categoryDrop");
-$("dropToggle").onclick=()=>dd.classList.toggle("open");
-dd.querySelectorAll(".catcheck").forEach(ch=>ch.onchange=updateTags);
-updateTags();renderImages("imageCount","thumbs",images);
+
+$("categoryOptions").querySelectorAll("[data-category]").forEach(b=>{
+b.onclick=()=>{
+selectedCategory=b.dataset.category;
+$("categoryOptions").querySelectorAll("[data-category]").forEach(x=>x.classList.toggle("active",x.dataset.category===selectedCategory));
+$("selectedTags").innerHTML=`<span class="tag">${esc(selectedCategory)}</span>`;
+};
+});
+
+renderImages("imageCount","thumbs",images);
 bindImageUpload("upload","choose","imageFiles",()=>images,arr=>{images=arr;renderImages("imageCount","thumbs",images);});
 $("cancelForm").onclick=()=>{if(activeId)select(activeId);else showWelcome();};
+
 $("protocolForm").onsubmit=async e=>{
 e.preventDefault();
 let name=$("pname").value.trim();
-let cats=[...document.querySelectorAll(".catcheck:checked")].map(x=>x.value);
+let cats=selectedCategory?[selectedCategory]:[];
 let content=$("pcontent").value.trim();
-if(!name||!cats.length||!content){toast("Vui lòng nhập tên, chọn phân loại và điền nội dung protocol.");return;}
+if(!name||!cats.length||!content){toast("Vui lòng nhập tên, chọn một phân loại và điền nội dung protocol.");return;}
 let old=data.find(x=>x.id===editingId);
 let obj={id:old?.id||uid("p"),name,categories:cats,content,notes:$("pnotes").value.trim(),images:[...images],createdAt:old?.createdAt||Date.now(),updatedAt:Date.now()};
 let before=data;
@@ -531,11 +542,6 @@ if(!await saveTable(TABLE,data)){data=before;return;}
 activeId=obj.id;folder="Tất cả";render();select(obj.id);
 toast(old?"Đã cập nhật protocol.":"Đã lưu protocol.");
 };
-}
-function updateTags(){
-let cats=[...document.querySelectorAll(".catcheck:checked")].map(x=>x.value);
-$("dropLabel").textContent=cats.length?cats.join(", "):"Chọn một hoặc nhiều nhóm phân loại";
-$("selectedTags").innerHTML=cats.map(c=>`<span class="tag">${esc(c)}</span>`).join("");
 }
 
 /* ================= CÔNG CỤ CTCH ================= */
@@ -592,11 +598,13 @@ ${CCATS.map(c=>`<option value="${esc(c)}" ${p?.category===c?"selected":""}>${esc
 <button type="button" data-cmd="underline" title="Gạch chân"><u>U</u></button>
 <button type="button" data-cmd="insertUnorderedList" title="Gạch đầu dòng">• Danh sách</button>
 <button type="button" data-cmd="insertOrderedList" title="Đánh số">1. Danh sách</button>
+<button type="button" data-cmd="indent" title="Tăng thụt đầu dòng">→ Tăng thụt</button>
+<button type="button" data-cmd="outdent" title="Giảm thụt đầu dòng">← Giảm thụt</button>
 <label title="Màu chữ" style="display:flex;align-items:center;gap:4px;font-size:12px">Màu <input type="color" id="cColor" value="#19334b"></label>
 <button type="button" id="cClearFormat" title="Xóa định dạng">Tx</button>
 </div>
 <div id="cEditor" class="editor" contenteditable="true" data-placeholder="Nhập nội dung phân loại, phân độ...">${safeHtml(p?.content||"")}</div>
-<div class="smallhint">Có thể in đậm, in nghiêng, đổi màu chữ, tạo danh sách gạch đầu dòng hoặc đánh số.</div>
+<div class="smallhint">Có thể in đậm, in nghiêng, đổi màu chữ, tạo danh sách và tăng/giảm thụt đầu dòng nhiều cấp.</div>
 </div>
 <div class="field"><label>Ghi chú</label><textarea class="notes" id="cNotes" placeholder="Nhập ghi chú nếu có...">${esc(p?.notes||"")}</textarea></div>
 ${imageUploadMarkup("cUpload","cChoose","cImageFiles","cImageCount","cThumbs","Chọn ảnh từ máy tính")}
@@ -640,9 +648,9 @@ toast(old?"Đã cập nhật nội dung.":"Đã lưu nội dung mới.");
 };
 };
 
-/* Trình soạn thảo: lọc HTML, chỉ giữ định dạng cơ bản */
+/* TRÌNH SOẠN THẢO: LỌC HTML, GIỮ ĐỊNH DẠNG CƠ BẢN */
 function sanitizeHtml(html){
-const allowed=["B","STRONG","I","EM","U","P","DIV","BR","UL","OL","LI","SPAN"];
+const allowed=["B","STRONG","I","EM","U","P","DIV","BR","UL","OL","LI","SPAN","BLOCKQUOTE"];
 const doc=new DOMParser().parseFromString(String(html||""),"text/html");
 function clean(node){
 [...node.childNodes].forEach(child=>{
