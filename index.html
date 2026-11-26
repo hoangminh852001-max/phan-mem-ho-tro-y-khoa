@@ -8,13 +8,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--blue:#087fbd;--ink:#19334b;--muted:#708398;--line:#dce6ef;--bg:#f2f6fa;--soft:#eaf6fc;--red:#c94343}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",Arial,sans-serif}
-button,input,textarea{font:inherit}
-button{cursor:pointer}
-header{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:12px}
+button,input,textarea{font:inherit}button{cursor:pointer}
+header{min-height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 24px;gap:12px;flex-wrap:wrap}
 .brand{font-size:23px;font-weight:800;color:var(--blue)}
 .actions,.btnrow{display:flex;gap:8px;flex-wrap:wrap}
 button.btn{border:1px solid var(--line);background:white;color:var(--ink);padding:10px 14px;border-radius:10px;font-weight:600}
@@ -85,7 +85,7 @@ input:focus,textarea:focus{border-color:#76bddd;box-shadow:0 0 0 3px #087fbd18}
 .reservecontent{flex:1;display:grid;place-items:center;text-align:center;padding:25px;color:var(--muted)}
 .reservecontent .emoji{font-size:48px}
 .reservecontent h2{color:var(--ink)}
-.toast{position:fixed;bottom:20px;right:20px;background:#19334b;color:white;padding:12px 16px;border-radius:10px;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:50;font-size:13px}
+.toast{position:fixed;bottom:20px;right:20px;background:#19334b;color:white;padding:12px 16px;border-radius:10px;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:150;font-size:13px}
 .toast.show{opacity:1;transform:none}
 .modalbg,.lightbox{display:none;position:fixed;inset:0;background:#10223580;z-index:80;align-items:center;justify-content:center;padding:20px}
 .modalbg.show,.lightbox.show{display:flex}
@@ -95,6 +95,14 @@ input:focus,textarea:focus{border-color:#76bddd;box-shadow:0 0 0 3px #087fbd18}
 .lightbox{background:#000d}
 .lightbox img{max-width:95vw;max-height:90vh}
 .lightbox button{position:absolute;right:20px;top:15px;border:0;border-radius:50%;width:38px;height:38px;font-size:22px}
+.loginbg{position:fixed;inset:0;background:#eaf1f7;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.loginbox{background:white;border:1px solid var(--line);border-radius:16px;padding:28px;width:100%;max-width:360px;box-shadow:0 12px 40px #18334b18;text-align:center}
+.loginbox h2{margin:0 0 8px;color:var(--blue)}
+.loginbox p{font-size:13px;color:var(--muted)}
+.loginbox input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:10px 0}
+.loginbox button{width:100%;padding:12px;border:0;border-radius:10px;background:var(--blue);color:white;font-weight:700}
+.loginerror{color:var(--red);font-size:12px;min-height:18px}
+.syncstatus{font-size:11px;color:var(--muted);padding:0 5px;align-self:center}
 [hidden]{display:none!important}
 @media(max-width:850px){
 header{padding:12px;height:auto;flex-wrap:wrap}
@@ -112,9 +120,19 @@ main{padding:12px}
 </style>
 </head>
 <body>
+<div class="loginbg" id="loginScreen">
+ <div class="loginbox">
+  <h2>✦ CÔNG CỤ Y KHOA</h2>
+  <p>Nhập mã PIN để truy cập công cụ</p>
+  <input id="pinInput" type="password" inputmode="numeric" placeholder="Nhập mã PIN">
+  <button id="pinButton">Truy cập</button>
+  <div class="loginerror" id="pinError"></div>
+ </div>
+</div>
 <header>
 <div class="brand">✦ CÔNG CỤ Y KHOA</div>
 <div class="actions">
+<span class="syncstatus" id="syncStatus">Đang kết nối...</span>
 <button class="btn" id="export">Xuất dữ liệu</button>
 <button class="btn" id="import">Nhập dữ liệu</button>
 <input id="importFile" type="file" accept=".json,application/json" hidden>
@@ -176,24 +194,27 @@ main{padding:12px}
 "use strict";
 
 const KEY="cong_cu_y_khoa_protocols_vi_v3";
+const SUPABASE_URL="https://nwvfgjtcbntslngbpehk.supabase.co";
+const SUPABASE_KEY="sb_publishable_NYRCy_JekP7D8vxrc5Zojg_UVM6NcJg";
+const PIN="12345";
 const CATS=["Chi trên","Chi dưới","Ngoại Tổng hợp","Phẫu thuật khác","Thủ thuật khác"];
 const FOLDERS=["Tất cả",...CATS];
 const $=id=>document.getElementById(id);
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let data=[],activeId=null,folder="Tất cả",editingId=null,images=[],modalAction=null,timer;
+let cloudReady=false,saveQueue=Promise.resolve(),refreshBusy=false;
 
 const uid=()=>"p_"+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
-
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({
-"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-}[c]));
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 function toast(s){
 $("toast").textContent=s;
 $("toast").classList.add("show");
 clearTimeout(timer);
-timer=setTimeout(()=>$("toast").classList.remove("show"),2600);
+timer=setTimeout(()=>$("toast").classList.remove("show"),3000);
 }
+function setStatus(s){$("syncStatus").textContent=s;}
 
 function normalize(x){
 if(!x||typeof x!=="object")return null;
@@ -214,44 +235,130 @@ updatedAt:x.updatedAt??Date.now()
 };
 }
 
-function save(){
-try{
-localStorage.setItem(KEY,JSON.stringify(data));
-return true;
-}catch(e){
-toast("Không đủ dung lượng lưu ảnh. Hãy giảm kích thước ảnh.");
-return false;
-}
-}
-
-function load(){
+function readLocal(){
 try{
 let a=JSON.parse(localStorage.getItem(KEY)||"[]");
 if(!Array.isArray(a))a=a.dataList||[];
-data=a.map(normalize).filter(Boolean);
-}catch(e){data=[];}
+return a.map(normalize).filter(Boolean);
+}catch(e){return[];}
 }
+function writeLocal(){
+try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}
+}
+
+function save(){
+if(!cloudReady){
+toast("Máy chủ chưa sẵn sàng. Vui lòng thử lại.");
+return false;
+}
+const snapshot=data.map(p=>({...p}));
+writeLocal();
+saveQueue=saveQueue.then(async()=>{
+const rows=snapshot.map(p=>({
+id:p.id,
+payload:p,
+updated_at:new Date(p.updatedAt||Date.now()).toISOString()
+}));
+if(rows.length){
+const {error}=await db.from("medical_protocols").upsert(rows,{onConflict:"id"});
+if(error)throw error;
+}
+});
+saveQueue=saveQueue.then(()=>{
+setStatus("Đã đồng bộ");
+}).catch(err=>{
+console.error(err);
+setStatus("Lỗi đồng bộ");
+toast("Lỗi lưu dữ liệu lên máy chủ: "+(err.message||"Kiểm tra Internet"));
+});
+return true;
+}
+
+async function cloudLoad(){
+setStatus("Đang tải dữ liệu...");
+const {data:rows,error}=await db.from("medical_protocols").select("id,payload,updated_at");
+if(error)throw error;
+
+let cloud=(rows||[]).map(r=>normalize(r.payload)).filter(Boolean);
+
+// Nếu bảng Supabase đang trống, tự chuyển dữ liệu cũ từ trình duyệt này lên.
+if(!cloud.length){
+const local=readLocal();
+if(local.length){
+const upload=local.map(p=>({
+id:p.id,
+payload:p,
+updated_at:new Date(p.updatedAt||Date.now()).toISOString()
+}));
+const {error:upErr}=await db.from("medical_protocols").upsert(upload,{onConflict:"id"});
+if(upErr)throw upErr;
+cloud=local;
+}
+}
+data=cloud;
+writeLocal();
+cloudReady=true;
+render();
+showWelcome();
+setStatus("Đã kết nối · "+data.length+" protocol");
+}
+
+async function refreshCloud(){
+if(!cloudReady||refreshBusy||editingId)return;
+refreshBusy=true;
+try{
+const {data:rows,error}=await db.from("medical_protocols").select("id,payload,updated_at");
+if(error)throw error;
+data=(rows||[]).map(r=>normalize(r.payload)).filter(Boolean);
+writeLocal();
+render();
+if(activeId){
+if(data.some(p=>p.id===activeId))select(activeId);
+else{activeId=null;showWelcome();}
+}
+setStatus("Đã đồng bộ · "+data.length+" protocol");
+}catch(e){
+console.error(e);
+setStatus("Mất kết nối tạm thời");
+}finally{refreshBusy=false;}
+}
+
+async function cloudDelete(id){
+const {error}=await db.from("medical_protocols").delete().eq("id",id);
+if(error){
+console.error(error);
+toast("Chưa xóa được trên máy chủ: "+error.message);
+return false;
+}
+return true;
+}
+
+function unlock(){
+if($("pinInput").value===PIN){
+$("loginScreen").hidden=true;
+sessionStorage.setItem("cong_cu_y_khoa_unlocked","1");
+}else{
+$("pinError").textContent="Mã PIN chưa đúng. Vui lòng thử lại.";
+$("pinInput").select();
+}
+}
+$("pinButton").onclick=unlock;
+$("pinInput").addEventListener("keydown",e=>{if(e.key==="Enter")unlock();});
+if(sessionStorage.getItem("cong_cu_y_khoa_unlocked")==="1")$("loginScreen").hidden=true;
 
 function showTab(t){
 $("protocolTab").hidden=t!=="protocol";
 $("reserveTab").hidden=t!=="reserve";
-document.querySelectorAll(".tab").forEach(b=>
-b.classList.toggle("active",b.dataset.tab===t)
-);
+document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
 }
-
-document.querySelectorAll(".tab").forEach(b=>{
-b.onclick=()=>showTab(b.dataset.tab);
-});
+document.querySelectorAll(".tab").forEach(b=>{b.onclick=()=>showTab(b.dataset.tab);});
 
 function renderFolders(){
 $("folders").innerHTML=FOLDERS.map(f=>`
 <button class="folder ${folder===f?"active":""}" data-folder="${esc(f)}">
 <span>${f==="Tất cả"?"▦　":"📁　"}${esc(f)}</span>
 <span class="count">${f==="Tất cả"?data.length:data.filter(p=>p.categories.includes(f)).length}</span>
-</button>
-`).join("");
-
+</button>`).join("");
 $("folders").querySelectorAll("[data-folder]").forEach(b=>{
 b.onclick=()=>{
 folder=b.dataset.folder;
@@ -273,91 +380,59 @@ return data.filter(p=>
 
 function renderList(){
 let a=filtered();
-
 $("list").innerHTML=a.length?a.map(p=>`
 <button class="item ${p.id===activeId?"active":""}" data-id="${esc(p.id)}">
 <b>${esc(p.name)}</b>
 <small>${p.categories.map(esc).join(" · ")||"Chưa phân loại"}</small>
-</button>
-`).join(""):'<div class="empty">Không tìm thấy protocol phù hợp.</div>';
-
-$("list").querySelectorAll("[data-id]").forEach(b=>{
-b.onclick=()=>select(b.dataset.id);
-});
-
+</button>`).join(""):'<div class="empty">Không tìm thấy protocol phù hợp.</div>';
+$("list").querySelectorAll("[data-id]").forEach(b=>{b.onclick=()=>select(b.dataset.id);});
 $("total").textContent=data.length+" protocol";
 }
-
-function render(){
-renderFolders();
-renderList();
-}
+function render(){renderFolders();renderList();}
 
 function showWelcome(){
 editingId=null;
 $("detailActions").hidden=true;
 $("heading").textContent=folder==="Tất cả"?"Kho protocol":folder;
 $("body").innerHTML=`
-<div class="welcome">
-<div>
-<div class="emoji">📋</div>
+<div class="welcome"><div><div class="emoji">📋</div>
 <h2>Chưa có protocol được chọn</h2>
 <p>Chọn protocol ở danh sách bên trái hoặc nhập protocol mới.</p>
-</div>
-</div>`;
+</div></div>`;
 }
 
 function select(id){
 let p=data.find(x=>x.id===id);
 if(!p)return;
-
 activeId=id;
 editingId=null;
 renderList();
-
 $("heading").textContent="Chi tiết protocol";
 $("detailActions").hidden=false;
-
 $("body").innerHTML=`
 <h1 class="detailtitle">${esc(p.name)}</h1>
 <div class="meta">
 ${p.categories.map(c=>`<span class="tag">${esc(c)}</span>`).join("")||'<span class="tag">Chưa phân loại</span>'}
 </div>
 <div class="content">${esc(p.content)||"Chưa có nội dung protocol."}</div>
-${p.notes?`
-<div class="section">
-<h3>GHI CHÚ</h3>
-<div class="content">${esc(p.notes)}</div>
-</div>`:""}
+${p.notes?`<div class="section"><h3>GHI CHÚ</h3><div class="content">${esc(p.notes)}</div></div>`:""}
 ${p.images.length?`
-<div class="section">
-<h3>HÌNH ẢNH ĐÍNH KÈM (${p.images.length}/4)</h3>
+<div class="section"><h3>HÌNH ẢNH ĐÍNH KÈM (${p.images.length}/4)</h3>
 <div class="detailimgs">
-${p.images.map((src,i)=>`
-<img src="${src}" data-image="${i}" alt="Ảnh ${i+1}">
-`).join("")}
-</div>
-</div>`:""}
+${p.images.map((src,i)=>`<img src="${src}" data-image="${i}" alt="Ảnh ${i+1}">`).join("")}
+</div></div>`:""}
 <div class="section" style="color:#8796a5;font-size:11px">
 Cập nhật: ${new Date(p.updatedAt).toLocaleString("vi-VN")}
-</div>
-`;
-
-$("body").querySelectorAll("[data-image]").forEach((im,i)=>{
-im.onclick=()=>openImage(p.images[i]);
-});
+</div>`;
+$("body").querySelectorAll("[data-image]").forEach((im,i)=>{im.onclick=()=>openImage(p.images[i]);});
 }
 
 function openImage(src){
 $("lightboxImg").src=src;
 $("lightbox").classList.add("show");
 }
-
 $("closeLightbox").onclick=()=>$("lightbox").classList.remove("show");
-
-$("lightbox").onclick=e=>{
-if(e.target===$("lightbox"))$("lightbox").classList.remove("show");
-};
+$("lightbox").onclick=e=>{if(e.target===$("lightbox"))$("lightbox").classList.remove("show");};
 
 function openForm(p=null){
 editingId=p?.id??null;
@@ -372,41 +447,31 @@ $("body").innerHTML=`
 <form class="form" id="protocolForm">
 <div class="field">
 <label>Tên phẫu thuật, thủ thuật <span class="req">*</span></label>
-<input id="pname" required maxlength="180"
-placeholder="Nhập tên phẫu thuật, thủ thuật..."
-value="${esc(p?.name||"")}">
+<input id="pname" required maxlength="180" placeholder="Nhập tên phẫu thuật, thủ thuật..." value="${esc(p?.name||"")}">
 </div>
-
 <div class="field">
 <label>Phân loại protocol <span class="req">*</span></label>
 <div class="dropdown" id="categoryDrop">
 <button type="button" class="dropbtn" id="dropToggle">
-<span id="dropLabel">Chọn một hoặc nhiều nhóm phân loại</span>
-<span>⌄</span>
+<span id="dropLabel">Chọn một hoặc nhiều nhóm phân loại</span><span>⌄</span>
 </button>
 <div class="dropmenu">
 ${CATS.map(c=>`
 <label class="option">
-<input type="checkbox" value="${esc(c)}" class="catcheck"
-${p?.categories.includes(c)?"checked":""}>
+<input type="checkbox" value="${esc(c)}" class="catcheck" ${p?.categories.includes(c)?"checked":""}>
 ${esc(c)}
-</label>
-`).join("")}
-</div>
-</div>
+</label>`).join("")}
+</div></div>
 <div class="tags" id="selectedTags"></div>
 </div>
-
 <div class="field">
 <label>Nội dung protocol <span class="req">*</span></label>
 <textarea id="pcontent" required placeholder="Nhập nội dung protocol...">${esc(p?.content||"")}</textarea>
 </div>
-
 <div class="field">
 <label>Ghi chú</label>
 <textarea class="notes" id="pnotes" placeholder="Nhập ghi chú nếu có...">${esc(p?.notes||"")}</textarea>
 </div>
-
 <div class="field">
 <label>Hình ảnh đính kèm <span style="color:#8796a5;font-weight:400">(tối đa 4 ảnh)</span></label>
 <div class="upload" id="upload">
@@ -419,84 +484,44 @@ ${esc(c)}
 <div class="foot" style="border:0;padding:8px 0" id="imageCount"></div>
 <div class="thumbs" id="thumbs"></div>
 </div>
-
 <div class="formfoot">
 <button type="button" class="btn" id="cancelForm">Hủy</button>
 <button type="submit" class="btn primary">✓ Lưu protocol</button>
 </div>
-</form>
-`;
+</form>`;
 
 const dd=$("categoryDrop");
 $("dropToggle").onclick=()=>dd.classList.toggle("open");
-
-dd.querySelectorAll(".catcheck").forEach(ch=>{
-ch.onchange=updateTags;
-});
-
+dd.querySelectorAll(".catcheck").forEach(ch=>{ch.onchange=updateTags;});
 updateTags();
 renderImages();
-
 $("choose").onclick=()=>$("imageFiles").click();
-
-$("imageFiles").onchange=e=>{
-addFiles([...e.target.files]);
-};
-
-$("cancelForm").onclick=()=>{
-if(activeId)select(activeId);
-else showWelcome();
-};
+$("imageFiles").onchange=e=>addFiles([...e.target.files]);
+$("cancelForm").onclick=()=>{if(activeId)select(activeId);else showWelcome();};
 
 const up=$("upload");
-
-up.ondragover=e=>{
-e.preventDefault();
-up.classList.add("drag");
-};
-
+up.ondragover=e=>{e.preventDefault();up.classList.add("drag");};
 up.ondragleave=()=>up.classList.remove("drag");
-
-up.ondrop=e=>{
-e.preventDefault();
-up.classList.remove("drag");
-addFiles([...e.dataTransfer.files]);
-};
+up.ondrop=e=>{e.preventDefault();up.classList.remove("drag");addFiles([...e.dataTransfer.files]);};
 
 $("protocolForm").onsubmit=e=>{
 e.preventDefault();
-
 let name=$("pname").value.trim();
 let cats=[...document.querySelectorAll(".catcheck:checked")].map(x=>x.value);
 let content=$("pcontent").value.trim();
-
 if(!name||!cats.length||!content){
 toast("Vui lòng nhập tên, chọn phân loại và điền nội dung protocol.");
 return;
 }
-
 let old=data.find(x=>x.id===editingId);
-
 let obj={
-id:old?.id||uid(),
-name,
-categories:cats,
-content,
-notes:$("pnotes").value.trim(),
-images:[...images],
-createdAt:old?.createdAt||Date.now(),
-updatedAt:Date.now()
+id:old?.id||uid(),name,categories:cats,content,
+notes:$("pnotes").value.trim(),images:[...images],
+createdAt:old?.createdAt||Date.now(),updatedAt:Date.now()
 };
-
-let next=old?data.map(x=>x.id===old.id?obj:x):[obj,...data];
 let before=data;
-data=next;
-
-if(!save()){
-data=before;
-return;
-}
-
+data=old?data.map(x=>x.id===old.id?obj:x):[obj,...data];
+if(!save()){data=before;return;}
 activeId=obj.id;
 folder="Tất cả";
 render();
@@ -507,107 +532,76 @@ toast(old?"Đã cập nhật protocol.":"Đã lưu protocol.");
 
 function updateTags(){
 let cats=[...document.querySelectorAll(".catcheck:checked")].map(x=>x.value);
-
-$("dropLabel").textContent=cats.length
-?cats.join(", ")
-:"Chọn một hoặc nhiều nhóm phân loại";
-
-$("selectedTags").innerHTML=cats.map(c=>
-`<span class="tag">${esc(c)}</span>`
-).join("");
+$("dropLabel").textContent=cats.length?cats.join(", "):"Chọn một hoặc nhiều nhóm phân loại";
+$("selectedTags").innerHTML=cats.map(c=>`<span class="tag">${esc(c)}</span>`).join("");
 }
 
 function renderImages(){
 $("imageCount").textContent=`Đã chọn ${images.length}/4 ảnh.`;
-
 $("thumbs").innerHTML=images.map((src,i)=>`
-<div class="thumb">
-<img src="${src}" alt="Ảnh ${i+1}">
-<button type="button" data-remove="${i}">×</button>
-</div>
-`).join("");
-
+<div class="thumb"><img src="${src}" alt="Ảnh ${i+1}">
+<button type="button" data-remove="${i}">×</button></div>`).join("");
 $("thumbs").querySelectorAll("[data-remove]").forEach(b=>{
-b.onclick=()=>{
-images.splice(Number(b.dataset.remove),1);
-renderImages();
-};
+b.onclick=()=>{images.splice(Number(b.dataset.remove),1);renderImages();};
 });
 }
 
-function addFiles(files){
+function compressImage(file){
+return new Promise((resolve,reject)=>{
+const reader=new FileReader();
+reader.onerror=()=>reject(new Error("Không đọc được ảnh"));
+reader.onload=()=>{
+const img=new Image();
+img.onerror=()=>reject(new Error("Ảnh không hợp lệ"));
+img.onload=()=>{
+const max=1400,scale=Math.min(1,max/Math.max(img.width,img.height));
+const canvas=document.createElement("canvas");
+canvas.width=Math.round(img.width*scale);
+canvas.height=Math.round(img.height*scale);
+const ctx=canvas.getContext("2d");
+ctx.fillStyle="#ffffff";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.drawImage(img,0,0,canvas.width,canvas.height);
+resolve(canvas.toDataURL("image/jpeg",0.78));
+};
+img.src=reader.result;
+};
+reader.readAsDataURL(file);
+});
+}
+
+async function addFiles(files){
 let fs=files.filter(f=>f.type.startsWith("image/"));
 if(!fs.length)return;
-
 let room=4-images.length;
-
-if(room<=0){
-toast("Mỗi protocol chỉ được tối đa 4 ảnh.");
-return;
+if(room<=0){toast("Mỗi protocol chỉ được tối đa 4 ảnh.");return;}
+if(fs.length>room)toast("Chỉ thêm được "+room+" ảnh nữa (tối đa 4 ảnh).");
+for(const file of fs.slice(0,room)){
+try{
+const compressed=await compressImage(file);
+if(images.length<4){images.push(compressed);renderImages();}
+}catch(e){toast("Không xử lý được một ảnh.");}
 }
-
-if(fs.length>room){
-toast("Chỉ thêm được "+room+" ảnh nữa (tối đa 4 ảnh).");
-}
-
-fs.slice(0,room).forEach(file=>{
-let r=new FileReader();
-
-r.onload=()=>{
-images.push(r.result);
-renderImages();
-};
-
-r.readAsDataURL(file);
-});
 }
 
 document.addEventListener("paste",e=>{
 if($("protocolForm")){
 let items=[...(e.clipboardData?.items||[])];
-
-let files=items
-.filter(i=>i.type.startsWith("image/"))
-.map(i=>i.getAsFile())
-.filter(Boolean);
-
-if(files.length){
-e.preventDefault();
-addFiles(files);
-}
+let files=items.filter(i=>i.type.startsWith("image/")).map(i=>i.getAsFile()).filter(Boolean);
+if(files.length){e.preventDefault();addFiles(files);}
 }
 });
 
 $("new").onclick=()=>openForm();
-
 $("search").oninput=renderList;
-
-$("edit").onclick=()=>{
-let p=data.find(x=>x.id===activeId);
-if(p)openForm(p);
-};
+$("edit").onclick=()=>{let p=data.find(x=>x.id===activeId);if(p)openForm(p);};
 
 $("copy").onclick=()=>{
 let p=data.find(x=>x.id===activeId);
 if(!p)return;
-
-let clone={
-...p,
-id:uid(),
-name:p.name+" (Bản sao)",
-images:[...p.images],
-createdAt:Date.now(),
-updatedAt:Date.now()
-};
-
+let clone={...p,id:uid(),name:p.name+" (Bản sao)",images:[...p.images],createdAt:Date.now(),updatedAt:Date.now()};
 data.unshift(clone);
-
-if(save()){
-folder="Tất cả";
-render();
-select(clone.id);
-toast("Đã sao chép protocol.");
-}
+if(save()){folder="Tất cả";render();select(clone.id);toast("Đã sao chép protocol.");}
 };
 
 function ask(title,message,fn){
@@ -620,20 +614,20 @@ $("modal").classList.add("show");
 $("delete").onclick=()=>ask(
 "Xóa protocol",
 "Bạn có chắc chắn muốn xóa protocol này? Thao tác này không thể hoàn tác.",
-()=>{
-data=data.filter(x=>x.id!==activeId);
+async()=>{
+const id=activeId;
+const ok=await cloudDelete(id);
+if(!ok)return;
+data=data.filter(x=>x.id!==id);
 activeId=null;
-save();
+writeLocal();
 render();
 showWelcome();
 toast("Đã xóa protocol.");
 }
 );
 
-$("cancelModal").onclick=()=>{
-$("modal").classList.remove("show");
-};
-
+$("cancelModal").onclick=()=>{$("modal").classList.remove("show");};
 $("confirmModal").onclick=()=>{
 $("modal").classList.remove("show");
 if(modalAction)modalAction();
@@ -641,66 +635,59 @@ modalAction=null;
 };
 
 $("export").onclick=()=>{
-let blob=new Blob(
-[JSON.stringify({
-version:1,
-exportedAt:new Date().toISOString(),
-protocols:data
-},null,2)],
-{type:"application/json"}
-);
-
+let blob=new Blob([JSON.stringify({
+version:1,exportedAt:new Date().toISOString(),protocols:data
+},null,2)],{type:"application/json"});
 let url=URL.createObjectURL(blob);
 let a=document.createElement("a");
-
 a.href=url;
 a.download="cong-cu-y-khoa-backup.json";
 a.click();
-
 URL.revokeObjectURL(url);
 toast("Đã xuất dữ liệu sao lưu.");
 };
 
 $("import").onclick=()=>$("importFile").click();
-
 $("importFile").onchange=e=>{
 let f=e.target.files[0];
 if(!f)return;
-
 let r=new FileReader();
-
-r.onload=()=>{
+r.onload=async()=>{
 try{
 let obj=JSON.parse(r.result);
 let arr=Array.isArray(obj)?obj:(obj.protocols||obj.dataList);
-
 if(!Array.isArray(arr))throw Error();
-
 let incoming=arr.map(normalize).filter(x=>x&&x.name);
 let map=new Map(data.map(x=>[x.id,x]));
-
 incoming.forEach(x=>map.set(x.id,x));
 data=[...map.values()];
-
 if(save()){
 render();
 showWelcome();
-toast("Đã nhập "+incoming.length+" protocol.");
+toast("Đã nhập "+incoming.length+" protocol. Đang đồng bộ lên máy chủ.");
 }
-
 }catch(err){
 toast("File dữ liệu không đúng định dạng.");
 }
 };
-
 r.readAsText(f);
 e.target.value="";
 };
 
-load();
+(async()=>{
+try{
+await cloudLoad();
+setInterval(refreshCloud,15000);
+}catch(e){
+console.error(e);
+cloudReady=false;
+setStatus("Không kết nối được");
+data=readLocal();
 render();
 showWelcome();
-
+toast("Không kết nối được Supabase. Kiểm tra Internet và cấu hình máy chủ.");
+}
+})();
 })();
 </script>
 </body>
