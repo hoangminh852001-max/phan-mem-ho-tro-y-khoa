@@ -1,12 +1,10 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CÔNG CỤ Y KHOA</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -14,14 +12,14 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",Arial,sans-serif}
 button,input,textarea{font:inherit}button{cursor:pointer}
-header{min-height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 24px;gap:12px;flex-wrap:wrap}
+header{min-height:72px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 24px;gap:12px;flex-wrap:wrap}
 .brand{font-size:23px;font-weight:800;color:var(--blue)}
 .actions,.btnrow{display:flex;gap:8px;flex-wrap:wrap}
-button.btn{border:1px solid var(--line);background:white;color:var(--ink);padding:10px 14px;border-radius:10px;font-weight:600}
-button.btn:hover{border-color:#91c8e2;background:#f7fbfd}
-button.primary{background:var(--blue);color:white;border-color:var(--blue)}
-button.primary:hover{background:#066b9e}
-button.danger{color:var(--red)}
+.btn{border:1px solid var(--line);background:white;color:var(--ink);padding:10px 14px;border-radius:10px;font-weight:600}
+.btn:hover{border-color:#91c8e2;background:#f7fbfd}
+.primary{background:var(--blue);color:white;border-color:var(--blue)}
+.primary:hover{background:#066b9e}
+.danger{color:var(--red)}
 nav{height:56px;background:white;border-bottom:1px solid var(--line);display:flex;padding:0 24px;gap:8px}
 .tab{border:0;background:none;padding:0 16px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent}
 .tab.active{color:var(--blue);border-color:var(--blue)}
@@ -105,21 +103,17 @@ input:focus,textarea:focus{border-color:#76bddd;box-shadow:0 0 0 3px #087fbd18}
 .syncstatus{font-size:11px;color:var(--muted);padding:0 5px;align-self:center}
 [hidden]{display:none!important}
 @media(max-width:850px){
-header{padding:12px;height:auto;flex-wrap:wrap}
-.brand{font-size:19px}
-nav{padding:0 7px}
-.tab{padding:0 9px;font-size:12px}
-main{padding:12px}
-.workspace{grid-template-columns:1fr}
-.sidebar{min-height:0}
-.list{max-height:220px}
-.panel{min-height:480px}
+header{padding:12px;height:auto;flex-wrap:wrap}.brand{font-size:19px}
+nav{padding:0 7px}.tab{padding:0 9px;font-size:12px}
+main{padding:12px}.workspace{grid-template-columns:1fr}
+.sidebar{min-height:0}.list{max-height:220px}.panel{min-height:480px}
 .thumbs{grid-template-columns:repeat(2,minmax(0,1fr))}
 .detailimgs{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
 </head>
 <body>
+
 <div class="loginbg" id="loginScreen">
  <div class="loginbox">
   <h2>✦ CÔNG CỤ Y KHOA</h2>
@@ -129,6 +123,7 @@ main{padding:12px}
   <div class="loginerror" id="pinError"></div>
  </div>
 </div>
+
 <header>
 <div class="brand">✦ CÔNG CỤ Y KHOA</div>
 <div class="actions">
@@ -138,10 +133,12 @@ main{padding:12px}
 <input id="importFile" type="file" accept=".json,application/json" hidden>
 </div>
 </header>
+
 <nav>
 <button class="tab active" data-tab="protocol">Protocol phẫu thuật, thủ thuật</button>
 <button class="tab" data-tab="reserve">Công cụ hỗ trợ 2 (Dự phòng)</button>
 </nav>
+
 <main>
 <section class="workspace" id="protocolTab">
 <aside class="sidebar">
@@ -154,6 +151,7 @@ main{padding:12px}
 <div class="list" id="list"></div>
 <div class="foot" id="total">0 protocol</div>
 </aside>
+
 <section class="panel">
 <div class="panelhead">
 <h2 id="heading">Kho protocol</h2>
@@ -168,11 +166,13 @@ main{padding:12px}
 </div>
 </section>
 </section>
+
 <section class="reserve" id="reserveTab" hidden>
 <div class="panelhead"><h2>Công cụ hỗ trợ 2 (Dự phòng)</h2></div>
 <div class="reservecontent"><div><div class="emoji">🛠️</div><h2>Khu vực dự phòng</h2><p>Có thể bổ sung các công cụ y khoa khác tại đây trong tương lai.</p></div></div>
 </section>
 </main>
+
 <div class="toast" id="toast"></div>
 <div class="modalbg" id="modal">
 <div class="modal">
@@ -278,16 +278,13 @@ async function cloudLoad(){
 setStatus("Đang tải dữ liệu...");
 const {data:rows,error}=await db.from("medical_protocols").select("id,payload,updated_at");
 if(error)throw error;
-
 let cloud=(rows||[]).map(r=>normalize(r.payload)).filter(Boolean);
 
-// Nếu bảng Supabase đang trống, tự chuyển dữ liệu cũ từ trình duyệt này lên.
 if(!cloud.length){
 const local=readLocal();
 if(local.length){
 const upload=local.map(p=>({
-id:p.id,
-payload:p,
+id:p.id,payload:p,
 updated_at:new Date(p.updatedAt||Date.now()).toISOString()
 }));
 const {error:upErr}=await db.from("medical_protocols").upsert(upload,{onConflict:"id"});
@@ -363,7 +360,6 @@ $("folders").querySelectorAll("[data-folder]").forEach(b=>{
 b.onclick=()=>{
 folder=b.dataset.folder;
 activeId=null;
-$("heading").textContent=folder==="Tất cả"?"Kho protocol":folder;
 render();
 showWelcome();
 };
@@ -394,11 +390,7 @@ function showWelcome(){
 editingId=null;
 $("detailActions").hidden=true;
 $("heading").textContent=folder==="Tất cả"?"Kho protocol":folder;
-$("body").innerHTML=`
-<div class="welcome"><div><div class="emoji">📋</div>
-<h2>Chưa có protocol được chọn</h2>
-<p>Chọn protocol ở danh sách bên trái hoặc nhập protocol mới.</p>
-</div></div>`;
+$("body").innerHTML=`<div class="welcome"><div><div class="emoji">📋</div><h2>Chưa có protocol được chọn</h2><p>Chọn protocol ở danh sách bên trái hoặc nhập protocol mới.</p></div></div>`;
 }
 
 function select(id){
@@ -411,19 +403,11 @@ $("heading").textContent="Chi tiết protocol";
 $("detailActions").hidden=false;
 $("body").innerHTML=`
 <h1 class="detailtitle">${esc(p.name)}</h1>
-<div class="meta">
-${p.categories.map(c=>`<span class="tag">${esc(c)}</span>`).join("")||'<span class="tag">Chưa phân loại</span>'}
-</div>
+<div class="meta">${p.categories.map(c=>`<span class="tag">${esc(c)}</span>`).join("")||'<span class="tag">Chưa phân loại</span>'}</div>
 <div class="content">${esc(p.content)||"Chưa có nội dung protocol."}</div>
 ${p.notes?`<div class="section"><h3>GHI CHÚ</h3><div class="content">${esc(p.notes)}</div></div>`:""}
-${p.images.length?`
-<div class="section"><h3>HÌNH ẢNH ĐÍNH KÈM (${p.images.length}/4)</h3>
-<div class="detailimgs">
-${p.images.map((src,i)=>`<img src="${src}" data-image="${i}" alt="Ảnh ${i+1}">`).join("")}
-</div></div>`:""}
-<div class="section" style="color:#8796a5;font-size:11px">
-Cập nhật: ${new Date(p.updatedAt).toLocaleString("vi-VN")}
-</div>`;
+${p.images.length?`<div class="section"><h3>HÌNH ẢNH ĐÍNH KÈM (${p.images.length}/4)</h3><div class="detailimgs">${p.images.map((src,i)=>`<img src="${src}" data-image="${i}" alt="Ảnh ${i+1}">`).join("")}</div></div>`:""}
+<div class="section" style="color:#8796a5;font-size:11px">Cập nhật: ${new Date(p.updatedAt).toLocaleString("vi-VN")}</div>`;
 $("body").querySelectorAll("[data-image]").forEach((im,i)=>{im.onclick=()=>openImage(p.images[i]);});
 }
 
@@ -452,15 +436,9 @@ $("body").innerHTML=`
 <div class="field">
 <label>Phân loại protocol <span class="req">*</span></label>
 <div class="dropdown" id="categoryDrop">
-<button type="button" class="dropbtn" id="dropToggle">
-<span id="dropLabel">Chọn một hoặc nhiều nhóm phân loại</span><span>⌄</span>
-</button>
+<button type="button" class="dropbtn" id="dropToggle"><span id="dropLabel">Chọn một hoặc nhiều nhóm phân loại</span><span>⌄</span></button>
 <div class="dropmenu">
-${CATS.map(c=>`
-<label class="option">
-<input type="checkbox" value="${esc(c)}" class="catcheck" ${p?.categories.includes(c)?"checked":""}>
-${esc(c)}
-</label>`).join("")}
+${CATS.map(c=>`<label class="option"><input type="checkbox" value="${esc(c)}" class="catcheck" ${p?.categories.includes(c)?"checked":""}>${esc(c)}</label>`).join("")}
 </div></div>
 <div class="tags" id="selectedTags"></div>
 </div>
@@ -538,9 +516,7 @@ $("selectedTags").innerHTML=cats.map(c=>`<span class="tag">${esc(c)}</span>`).jo
 
 function renderImages(){
 $("imageCount").textContent=`Đã chọn ${images.length}/4 ảnh.`;
-$("thumbs").innerHTML=images.map((src,i)=>`
-<div class="thumb"><img src="${src}" alt="Ảnh ${i+1}">
-<button type="button" data-remove="${i}">×</button></div>`).join("");
+$("thumbs").innerHTML=images.map((src,i)=>`<div class="thumb"><img src="${src}" alt="Ảnh ${i+1}"><button type="button" data-remove="${i}">×</button></div>`).join("");
 $("thumbs").querySelectorAll("[data-remove]").forEach(b=>{
 b.onclick=()=>{images.splice(Number(b.dataset.remove),1);renderImages();};
 });
@@ -596,12 +572,33 @@ $("new").onclick=()=>openForm();
 $("search").oninput=renderList;
 $("edit").onclick=()=>{let p=data.find(x=>x.id===activeId);if(p)openForm(p);};
 
-$("copy").onclick=()=>{
-let p=data.find(x=>x.id===activeId);
+/* NÚT SAO CHÉP: sao chép nội dung protocol vào clipboard */
+$("copy").onclick=async()=>{
+const p=data.find(x=>x.id===activeId);
 if(!p)return;
-let clone={...p,id:uid(),name:p.name+" (Bản sao)",images:[...p.images],createdAt:Date.now(),updatedAt:Date.now()};
-data.unshift(clone);
-if(save()){folder="Tất cả";render();select(clone.id);toast("Đã sao chép protocol.");}
+
+const textToCopy=[
+p.name,
+"Phân loại: "+p.categories.join(", "),
+"",
+p.content,
+p.notes?"\nGhi chú:\n"+p.notes:""
+].join("\n");
+
+try{
+await navigator.clipboard.writeText(textToCopy);
+toast("Đã sao chép nội dung protocol. Bạn có thể nhấn Ctrl + V để dán.");
+}catch(e){
+const temp=document.createElement("textarea");
+temp.value=textToCopy;
+temp.style.position="fixed";
+temp.style.opacity="0";
+document.body.appendChild(temp);
+temp.select();
+const ok=document.execCommand("copy");
+temp.remove();
+toast(ok?"Đã sao chép nội dung protocol.":"Không sao chép được. Vui lòng thử lại.");
+}
 };
 
 function ask(title,message,fn){
@@ -652,7 +649,7 @@ $("importFile").onchange=e=>{
 let f=e.target.files[0];
 if(!f)return;
 let r=new FileReader();
-r.onload=async()=>{
+r.onload=()=>{
 try{
 let obj=JSON.parse(r.result);
 let arr=Array.isArray(obj)?obj:(obj.protocols||obj.dataList);
