@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -7,11 +6,15 @@
 <title>CÔNG CỤ Y KHOA</title>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
 :root{--blue:#087fbd;--ink:#19334b;--muted:#708398;--line:#dce6ef;--bg:#f2f6fa;--soft:#eaf6fc;--red:#c94343}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",Arial,sans-serif}
-button,input,textarea,select{font:inherit}button{cursor:pointer}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
 header{min-height:72px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 24px;gap:12px;flex-wrap:wrap}
 .brand{font-size:23px;font-weight:800;color:var(--blue)}
 .actions,.btnrow{display:flex;gap:8px;flex-wrap:wrap}
@@ -113,6 +116,24 @@ input:focus,textarea:focus,select:focus,.editor:focus{border-color:#76bddd;box-s
 .editor blockquote blockquote{margin-left:18px}
 .smallhint{font-size:12px;color:var(--muted);margin-top:5px}
 [hidden]{display:none!important}
+
+/* GIAO DIỆN ĐIỆN TIM */
+.ecg-layout{display:grid;grid-template-columns:minmax(280px,360px) minmax(0,1fr);gap:16px;align-items:start}
+.ecg-card{background:white;border:1px solid var(--line);border-radius:15px;padding:18px;min-width:0;box-shadow:0 6px 22px #18334b0c}
+.ecg-card h2{font-size:17px;margin:0 0 12px}
+.ecg-hint{color:var(--muted);font-size:13px;line-height:1.6}
+.ecg-qr{min-height:230px;margin:12px 0;padding:12px;border:1px dashed #b8d5e5;border-radius:12px;background:#f8fcfe;display:grid;place-items:center;text-align:center;overflow:hidden}
+.ecg-link{font-size:11px;color:var(--muted);word-break:break-all;margin:8px 0}
+.ecg-buttons,.ecg-heading{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.ecg-images{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:14px}
+.ecg-image-card{border:1px solid var(--line);border-radius:12px;padding:10px;min-width:0}
+.ecg-image-card img{width:100%;height:210px;object-fit:contain;background:#f5f7f9;border-radius:8px;cursor:zoom-in}
+.ecg-image-card .btn{font-size:12px;padding:7px 9px}
+.ecg-image-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.ecg-warning{font-size:12px;color:#7a5a16;background:#fff8e8;border:1px solid #f0dfb8;padding:10px;border-radius:9px;line-height:1.55;margin-top:12px}
+.ecg-phone-card{max-width:600px;margin:20px auto}
+.ecg-phone-card input[type=file]{display:block;width:100%;padding:12px;border:1px dashed #9bbbd0;border-radius:10px;margin:15px 0}
+.ecg-preview{width:100%;max-height:65vh;object-fit:contain;background:#f5f7f9;border:1px solid var(--line);border-radius:10px}
 @media(max-width:850px){
 header{padding:12px}.brand{font-size:19px}
 nav{padding:0 7px}.tab{padding:0 9px;font-size:12px}
@@ -120,6 +141,11 @@ main{padding:12px}.workspace{grid-template-columns:1fr}
 .sidebar{min-height:0}.list{max-height:220px}.panel{min-height:480px}
 .thumbs{grid-template-columns:repeat(2,minmax(0,1fr))}
 .detailimgs{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ecg-layout{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+.ecg-images{grid-template-columns:1fr}
+.ecg-image-card img{height:240px}
 }
 </style>
 </head>
@@ -148,6 +174,7 @@ main{padding:12px}.workspace{grid-template-columns:1fr}
 <nav>
 <button class="tab active" data-tab="protocol">Protocol phẫu thuật, thủ thuật</button>
 <button class="tab" data-tab="classification">Phân loại, phân độ trong CTCH</button>
+<button class="tab" data-tab="ecg">Điện tim</button>
 </nav>
 
 <main>
@@ -206,6 +233,46 @@ main{padding:12px}.workspace{grid-template-columns:1fr}
 <div class="welcome"><div><div class="emoji">🦴</div><h2>Kho phân loại, phân độ CTCH</h2><p>Chọn một mục bên trái hoặc thêm nội dung mới.</p></div></div>
 </section>
 </section>
+
+<section id="ecgTab" hidden>
+<div id="ecgDesktop">
+<div class="ecg-layout">
+<section class="ecg-card">
+<h2>📱 Tạo mã QR nhận ảnh điện tim</h2>
+<p class="ecg-hint">Tạo một phiên riêng. Dùng điện thoại quét mã QR để chụp ảnh hoặc chọn ảnh điện tim từ thư viện.</p>
+<button class="btn primary" id="ecgCreate">＋ Tạo mới QR</button>
+<div id="ecgQr" class="ecg-qr">Chưa có mã QR.</div>
+<div id="ecgLink" class="ecg-link"></div>
+<div class="ecg-buttons">
+<button class="btn" id="ecgCopy" disabled>Sao chép liên kết</button>
+<button class="btn" id="ecgRefresh" disabled>↻ Làm mới ảnh</button>
+</div>
+<p id="ecgStatus" class="ecg-hint">Chưa tạo phiên nhận ảnh.</p>
+<div class="ecg-warning">Ai có mã QR hoặc đường dẫn đều có thể gửi ảnh vào phiên tương ứng. Không dùng QR công khai để tiếp nhận ảnh có thông tin định danh người bệnh nếu chưa được bệnh viện phê duyệt quy trình bảo mật.</div>
+</section>
+
+<section class="ecg-card">
+<div class="ecg-heading">
+<h2>🖼️ Ảnh điện tim đã nhận</h2>
+<button class="btn" id="ecgPdf" disabled>Xuất PDF tất cả ảnh</button>
+</div>
+<p class="ecg-hint">Ảnh gốc được giữ nguyên. Xoay hoặc cắt chỉ áp dụng cho bản tải xuống.</p>
+<div id="ecgImages" class="ecg-images"><div class="empty">Tạo QR để bắt đầu nhận ảnh.</div></div>
+</section>
+</div>
+</div>
+
+<div id="ecgPhone" hidden>
+<section class="ecg-card ecg-phone-card">
+<h2>📷 Gửi ảnh điện tim</h2>
+<p class="ecg-hint">Chọn một hoặc nhiều ảnh điện tim trong điện thoại. Bạn cũng có thể chụp ảnh trực tiếp.</p>
+<input type="file" id="ecgPhoneFiles" accept="image/jpeg,image/png,image/webp" multiple capture="environment">
+<button class="btn primary" id="ecgPhoneUpload">Tải ảnh lên</button>
+<p id="ecgPhoneStatus" class="ecg-hint">Đang kiểm tra phiên nhận ảnh...</p>
+<div class="ecg-warning">Chỉ gửi ảnh vào đúng phiên QR được cung cấp.</div>
+</section>
+</div>
+</section>
 </main>
 
 <div class="toast" id="toast"></div>
@@ -228,40 +295,33 @@ main{padding:12px}.workspace{grid-template-columns:1fr}
 (()=>{
 "use strict";
 
-/* CẤU HÌNH KẾT NỐI */
+/* CẤU HÌNH SUPABASE */
 const SUPABASE_URL="https://nwvfgjtcbntslngbpehk.supabase.co";
 const SUPABASE_KEY="sb_publishable_NYRCy_JekP7D8vxrc5Zojg_UVM6NcJg";
 const PIN="12345";
-
 const KEY="cong_cu_y_khoa_protocols_vi_v3";
 const CKEY="cong_cu_y_khoa_ctch_classifications_v1";
 const TABLE="medical_protocols";
 const CTABLE="ctch_classifications";
+const ECG_ENDPOINT=SUPABASE_URL+"/functions/v1/ecg-upload";
 
 const CATS=["Chi trên","Chi dưới","Ngoại Tổng hợp","Phẫu thuật khác","Thủ thuật khác"];
 const CCATS=["Chi trên","Chi dưới","Khác"];
 const $=id=>document.getElementById(id);
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-let data=[],cData=[];
-let activeId=null,cActiveId=null;
+let data=[],cData=[],activeId=null,cActiveId=null;
 let folder="Tất cả",editingId=null,cEditingId=null;
-let images=[],cImages=[];
-let modalAction=null,timer;
-let cloudReady=false,refreshBusy=false;
-let saveQueue=Promise.resolve();
+let images=[],cImages=[],modalAction=null,timer;
+let cloudReady=false,refreshBusy=false,saveQueue=Promise.resolve();
 
+/* TIỆN ÍCH */
 const uid=prefix=>prefix+"_"+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-
-function toast(s){
-$("toast").textContent=s;
-$("toast").classList.add("show");
-clearTimeout(timer);
-timer=setTimeout(()=>$("toast").classList.remove("show"),3200);
-}
+function toast(s){$("toast").textContent=s;$("toast").classList.add("show");clearTimeout(timer);timer=setTimeout(()=>$("toast").classList.remove("show"),3200);}
 function setStatus(s){$("syncStatus").textContent=s;}
 
+/* CHUẨN HÓA DỮ LIỆU PROTOCOL */
 function normalize(x){
 if(!x||typeof x!=="object")return null;
 let cats=x.categories??x.category??x.groups??[];
@@ -271,17 +331,14 @@ let pics=x.images??x.photos??[];
 if(!Array.isArray(pics))pics=[];
 let firstCategory=CATS.find(v=>cats.includes(v));
 return{
-id:String(x.id??uid("p")),
-name:String(x.name??x.title??x.ten??""),
+id:String(x.id??uid("p")),name:String(x.name??x.title??x.ten??""),
 categories:firstCategory?[firstCategory]:[],
 content:String(x.content??x.protocol??x.noiDung??""),
 notes:String(x.notes??x.note??x.ghiChu??""),
 images:pics.slice(0,4).map(v=>typeof v==="string"?v:(v?.dataUrl??v?.src??"")).filter(Boolean),
-createdAt:x.createdAt??Date.now(),
-updatedAt:x.updatedAt??Date.now()
+createdAt:x.createdAt??Date.now(),updatedAt:x.updatedAt??Date.now()
 };
 }
-
 function normalizeC(x){
 if(!x||typeof x!=="object")return null;
 let cat=String(x.category??x.categories??"Khác");
@@ -290,91 +347,53 @@ if(!CCATS.includes(cat))cat="Khác";
 let pics=x.images??[];
 if(!Array.isArray(pics))pics=[];
 return{
-id:String(x.id??uid("c")),
-name:String(x.name??x.title??""),
-category:cat,
-content:String(x.content??""),
-notes:String(x.notes??""),
+id:String(x.id??uid("c")),name:String(x.name??x.title??""),category:cat,
+content:String(x.content??""),notes:String(x.notes??""),
 images:pics.slice(0,4).map(v=>typeof v==="string"?v:(v?.dataUrl??v?.src??"")).filter(Boolean),
-createdAt:x.createdAt??Date.now(),
-updatedAt:x.updatedAt??Date.now()
+createdAt:x.createdAt??Date.now(),updatedAt:x.updatedAt??Date.now()
 };
 }
-
 function readLocal(key,fn){
-try{
-let a=JSON.parse(localStorage.getItem(key)||"[]");
-if(!Array.isArray(a))a=[];
-return a.map(fn).filter(Boolean);
-}catch(e){return[];}
+try{let a=JSON.parse(localStorage.getItem(key)||"[]");if(!Array.isArray(a))a=[];return a.map(fn).filter(Boolean);}catch(e){return[];}
 }
 function writeLocal(){
 try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){console.warn(e);}
 try{localStorage.setItem(CKEY,JSON.stringify(cData));}catch(e){console.warn(e);}
 }
 
+/* ĐỒNG BỘ SUPABASE CHO HAI TAB CŨ */
 async function uploadRows(table,arr){
-const rows=arr.map(p=>({
-id:p.id,
-payload:p,
-updated_at:new Date(p.updatedAt||Date.now()).toISOString()
-}));
+const rows=arr.map(p=>({id:p.id,payload:p,updated_at:new Date(p.updatedAt||Date.now()).toISOString()}));
 if(!rows.length)return;
 const {error}=await db.from(table).upsert(rows,{onConflict:"id"});
 if(error)throw error;
 }
-
 async function saveTable(table,arr){
-if(!cloudReady){
-toast("Máy chủ chưa sẵn sàng. Vui lòng thử lại.");
-return false;
-}
+if(!cloudReady){toast("Máy chủ chưa sẵn sàng. Vui lòng thử lại.");return false;}
 const snapshot=arr.map(p=>({...p}));
 saveQueue=saveQueue.catch(()=>{}).then(()=>uploadRows(table,snapshot));
-try{
-await saveQueue;
-writeLocal();
-setStatus("Đã đồng bộ");
-return true;
-}catch(err){
-console.error(err);
-setStatus("Lỗi đồng bộ");
-toast("Lỗi lưu dữ liệu: "+(err.message||"Kiểm tra Internet"));
-return false;
+try{await saveQueue;writeLocal();setStatus("Đã đồng bộ");return true;}
+catch(err){console.error(err);setStatus("Lỗi đồng bộ");toast("Lỗi lưu dữ liệu: "+(err.message||"Kiểm tra Internet"));return false;}
 }
-}
-
 async function cloudLoadTable(table,normalizer,localKey){
 const {data:rows,error}=await db.from(table).select("id,payload,updated_at");
 if(error)throw error;
 let cloud=(rows||[]).map(r=>normalizer(r.payload)).filter(Boolean);
 if(!cloud.length){
 let local=readLocal(localKey,normalizer);
-if(local.length){
-await uploadRows(table,local);
-cloud=local;
-}
+if(local.length){await uploadRows(table,local);cloud=local;}
 }
 return cloud;
 }
-
 async function cloudLoad(){
 setStatus("Đang tải dữ liệu...");
 const [protocols,classifications]=await Promise.all([
-cloudLoadTable(TABLE,normalize,KEY),
-cloudLoadTable(CTABLE,normalizeC,CKEY)
+cloudLoadTable(TABLE,normalize,KEY),cloudLoadTable(CTABLE,normalizeC,CKEY)
 ]);
-data=protocols;
-cData=classifications;
-cloudReady=true;
-writeLocal();
-render();
-renderC();
-showWelcome();
-showCWelcome();
+data=protocols;cData=classifications;cloudReady=true;writeLocal();
+render();renderC();showWelcome();showCWelcome();
 setStatus("Đã kết nối · "+data.length+" protocol · "+cData.length+" mục CTCH");
 }
-
 async function refreshCloud(){
 if(!cloudReady||refreshBusy||editingId||cEditingId)return;
 refreshBusy=true;
@@ -383,56 +402,39 @@ const [pRows,cRows]=await Promise.all([
 db.from(TABLE).select("id,payload,updated_at"),
 db.from(CTABLE).select("id,payload,updated_at")
 ]);
-if(pRows.error)throw pRows.error;
-if(cRows.error)throw cRows.error;
+if(pRows.error)throw pRows.error;if(cRows.error)throw cRows.error;
 data=(pRows.data||[]).map(r=>normalize(r.payload)).filter(Boolean);
 cData=(cRows.data||[]).map(r=>normalizeC(r.payload)).filter(Boolean);
-writeLocal();
-render();
-renderC();
-if(activeId){
-if(data.some(p=>p.id===activeId))select(activeId);
-else{activeId=null;showWelcome();}
-}
-if(cActiveId){
-if(cData.some(p=>p.id===cActiveId))selectC(cActiveId);
-else{cActiveId=null;showCWelcome();}
-}
+writeLocal();render();renderC();
+if(activeId){if(data.some(p=>p.id===activeId))select(activeId);else{activeId=null;showWelcome();}}
+if(cActiveId){if(cData.some(p=>p.id===cActiveId))selectC(cActiveId);else{cActiveId=null;showCWelcome();}}
 setStatus("Đã đồng bộ · "+data.length+" protocol · "+cData.length+" mục CTCH");
-}catch(e){
-console.error(e);
-setStatus("Mất kết nối tạm thời");
-}finally{refreshBusy=false;}
+}catch(e){console.error(e);setStatus("Mất kết nối tạm thời");}
+finally{refreshBusy=false;}
 }
-
 async function cloudDelete(table,id){
 const {error}=await db.from(table).delete().eq("id",id);
-if(error){
-console.error(error);
-toast("Chưa xóa được trên máy chủ: "+error.message);
-return false;
-}
+if(error){console.error(error);toast("Chưa xóa được trên máy chủ: "+error.message);return false;}
 return true;
 }
 
-/* ĐĂNG NHẬP PIN */
+/* ĐĂNG NHẬP PIN CŨ */
+const isEcgPhone=new URLSearchParams(location.search).has("ecg");
 function unlock(){
 if($("pinInput").value===PIN){
 $("loginScreen").hidden=true;
 sessionStorage.setItem("cong_cu_y_khoa_unlocked","1");
-}else{
-$("pinError").textContent="Mã PIN chưa đúng. Vui lòng thử lại.";
-$("pinInput").select();
-}
+}else{$("pinError").textContent="Mã PIN chưa đúng. Vui lòng thử lại.";$("pinInput").select();}
 }
 $("pinButton").onclick=unlock;
 $("pinInput").addEventListener("keydown",e=>{if(e.key==="Enter")unlock();});
-if(sessionStorage.getItem("cong_cu_y_khoa_unlocked")==="1")$("loginScreen").hidden=true;
+if(isEcgPhone||sessionStorage.getItem("cong_cu_y_khoa_unlocked")==="1")$("loginScreen").hidden=true;
 
 /* CHUYỂN TAB */
 function showTab(t){
 $("protocolTab").hidden=t!=="protocol";
 $("classificationTab").hidden=t!=="classification";
+$("ecgTab").hidden=t!=="ecg";
 document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
 }
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
@@ -444,17 +446,13 @@ $("folders").innerHTML=["Tất cả",...CATS].map(f=>`
 <span>${f==="Tất cả"?"▦　":"📁　"}${esc(f)}</span>
 <span class="count">${f==="Tất cả"?data.length:data.filter(p=>p.categories.includes(f)).length}</span>
 </button>`).join("");
-$("folders").querySelectorAll("[data-folder]").forEach(b=>{
-b.onclick=()=>{
+$("folders").querySelectorAll("[data-folder]").forEach(b=>b.onclick=()=>{
 folder=b.dataset.folder;activeId=null;render();showWelcome();
-};
 });
 }
 function filtered(){
 let q=$("search").value.trim().toLocaleLowerCase("vi");
-return data.filter(p=>(folder==="Tất cả"||p.categories.includes(folder))&&
-(!q||p.name.toLocaleLowerCase("vi").includes(q)||p.content.toLocaleLowerCase("vi").includes(q)))
-.sort((a,b)=>a.name.localeCompare(b.name,"vi"));
+return data.filter(p=>(folder==="Tất cả"||p.categories.includes(folder))&&(!q||p.name.toLocaleLowerCase("vi").includes(q)||p.content.toLocaleLowerCase("vi").includes(q))).sort((a,b)=>a.name.localeCompare(b.name,"vi"));
 }
 function renderList(){
 let a=filtered();
@@ -467,16 +465,14 @@ $("total").textContent=data.length+" protocol";
 }
 function render(){renderFolders();renderList();}
 function showWelcome(){
-editingId=null;
-$("detailActions").hidden=true;
+editingId=null;$("detailActions").hidden=true;
 $("heading").textContent=folder==="Tất cả"?"Kho protocol":folder;
 $("body").innerHTML=`<div class="welcome"><div><div class="emoji">📋</div><h2>Chưa có protocol được chọn</h2><p>Chọn protocol ở danh sách bên trái hoặc nhập protocol mới.</p></div></div>`;
 }
 function select(id){
 let p=data.find(x=>x.id===id);if(!p)return;
 activeId=id;editingId=null;renderList();
-$("heading").textContent="Chi tiết protocol";
-$("detailActions").hidden=false;
+$("heading").textContent="Chi tiết protocol";$("detailActions").hidden=false;
 $("body").innerHTML=`
 <h1 class="detailtitle">${esc(p.name)}</h1>
 <div class="meta">${p.categories.map(c=>`<span class="tag">${esc(c)}</span>`).join("")||'<span class="tag">Chưa phân loại</span>'}</div>
@@ -486,9 +482,7 @@ ${p.images.length?`<div class="section"><h3>HÌNH ẢNH ĐÍNH KÈM (${p.images.
 <div class="section" style="color:#8796a5;font-size:11px">Cập nhật: ${new Date(p.updatedAt).toLocaleString("vi-VN")}</div>`;
 $("body").querySelectorAll("[data-image]").forEach((im,i)=>im.onclick=()=>openImage(p.images[i]));
 }
-function openImage(src){
-$("lightboxImg").src=src;$("lightbox").classList.add("show");
-}
+function openImage(src){$("lightboxImg").src=src;$("lightbox").classList.add("show");}
 $("closeLightbox").onclick=()=>$("lightbox").classList.remove("show");
 $("lightbox").onclick=e=>{if(e.target===$("lightbox"))$("lightbox").classList.remove("show");};
 
@@ -515,29 +509,21 @@ ${CATS.map(c=>`<button type="button" class="category-choice ${selectedCategory==
 ${imageUploadMarkup("upload","choose","imageFiles","imageCount","thumbs","Chọn ảnh từ máy tính")}
 <div class="formfoot"><button type="button" class="btn" id="cancelForm">Hủy</button><button type="submit" class="btn primary">✓ Lưu protocol</button></div>
 </form>`;
-
-$("categoryOptions").querySelectorAll("[data-category]").forEach(b=>{
-b.onclick=()=>{
+$("categoryOptions").querySelectorAll("[data-category]").forEach(b=>b.onclick=()=>{
 selectedCategory=b.dataset.category;
 $("categoryOptions").querySelectorAll("[data-category]").forEach(x=>x.classList.toggle("active",x.dataset.category===selectedCategory));
 $("selectedTags").innerHTML=`<span class="tag">${esc(selectedCategory)}</span>`;
-};
 });
-
 renderImages("imageCount","thumbs",images);
 bindImageUpload("upload","choose","imageFiles",()=>images,arr=>{images=arr;renderImages("imageCount","thumbs",images);});
 $("cancelForm").onclick=()=>{if(activeId)select(activeId);else showWelcome();};
-
 $("protocolForm").onsubmit=async e=>{
 e.preventDefault();
-let name=$("pname").value.trim();
-let cats=selectedCategory?[selectedCategory]:[];
-let content=$("pcontent").value.trim();
+let name=$("pname").value.trim(),cats=selectedCategory?[selectedCategory]:[],content=$("pcontent").value.trim();
 if(!name||!cats.length||!content){toast("Vui lòng nhập tên, chọn một phân loại và điền nội dung protocol.");return;}
 let old=data.find(x=>x.id===editingId);
 let obj={id:old?.id||uid("p"),name,categories:cats,content,notes:$("pnotes").value.trim(),images:[...images],createdAt:old?.createdAt||Date.now(),updatedAt:Date.now()};
-let before=data;
-data=old?data.map(x=>x.id===old.id?obj:x):[obj,...data];
+let before=data;data=old?data.map(x=>x.id===old.id?obj:x):[obj,...data];
 if(!await saveTable(TABLE,data)){data=before;return;}
 activeId=obj.id;folder="Tất cả";render();select(obj.id);
 toast(old?"Đã cập nhật protocol.":"Đã lưu protocol.");
@@ -546,10 +532,8 @@ toast(old?"Đã cập nhật protocol.":"Đã lưu protocol.");
 
 /* ================= CÔNG CỤ CTCH ================= */
 function renderC(){
-let q=$("cSearch").value.trim().toLocaleLowerCase("vi");
-let f=$("cFilter").value;
-let arr=cData.filter(p=>(f==="Tất cả"||p.category===f)&&(!q||p.name.toLocaleLowerCase("vi").includes(q)||stripHtml(p.content).toLocaleLowerCase("vi").includes(q)))
-.sort((a,b)=>a.name.localeCompare(b.name,"vi"));
+let q=$("cSearch").value.trim().toLocaleLowerCase("vi"),f=$("cFilter").value;
+let arr=cData.filter(p=>(f==="Tất cả"||p.category===f)&&(!q||p.name.toLocaleLowerCase("vi").includes(q)||stripHtml(p.content).toLocaleLowerCase("vi").includes(q))).sort((a,b)=>a.name.localeCompare(b.name,"vi"));
 $("cList").innerHTML=arr.length?arr.map(p=>`
 <button class="item ${p.id===cActiveId?"active":""}" data-cid="${esc(p.id)}">
 <b>${esc(p.name)}</b><small>${esc(p.category)}</small>
@@ -558,15 +542,13 @@ $("cList").querySelectorAll("[data-cid]").forEach(b=>b.onclick=()=>selectC(b.dat
 $("cTotal").textContent=cData.length+" mục";
 }
 function showCWelcome(){
-cEditingId=null;$("cActions").hidden=true;
-$("cHeading").textContent="Kho phân loại, phân độ CTCH";
+cEditingId=null;$("cActions").hidden=true;$("cHeading").textContent="Kho phân loại, phân độ CTCH";
 $("cBody").innerHTML=`<div class="welcome"><div><div class="emoji">🦴</div><h2>Kho phân loại, phân độ CTCH</h2><p>Chọn một mục bên trái hoặc thêm nội dung mới.</p></div></div>`;
 }
 function selectC(id){
 let p=cData.find(x=>x.id===id);if(!p)return;
 cActiveId=id;cEditingId=null;renderC();
-$("cHeading").textContent="Chi tiết phân loại, phân độ";
-$("cActions").hidden=false;
+$("cHeading").textContent="Chi tiết phân loại, phân độ";$("cActions").hidden=false;
 $("cBody").innerHTML=`
 <h1 class="detailtitle">${esc(p.name)}</h1>
 <div class="meta"><span class="tag">${esc(p.category)}</span></div>
@@ -576,7 +558,6 @@ ${p.images.length?`<div class="section"><h3>HÌNH ẢNH ĐÍNH KÈM (${p.images.
 <div class="section" style="color:#8796a5;font-size:11px">Cập nhật: ${new Date(p.updatedAt).toLocaleString("vi-VN")}</div>`;
 $("cBody").querySelectorAll("[data-cimage]").forEach((im,i)=>im.onclick=()=>openImage(p.images[i]));
 }
-
 function openCForm(p=null){
 cEditingId=p?.id??null;cImages=p?[...p.images]:[];
 $("cHeading").textContent=p?"Chỉnh sửa phân loại, phân độ":"Thêm phân loại, phân độ";
@@ -593,62 +574,42 @@ ${CCATS.map(c=>`<option value="${esc(c)}" ${p?.category===c?"selected":""}>${esc
 </select></div>
 <div class="field"><label>Nội dung <span class="req">*</span></label>
 <div class="editorToolbar">
-<button type="button" data-cmd="bold" title="In đậm"><b>B</b></button>
-<button type="button" data-cmd="italic" title="In nghiêng"><i>I</i></button>
-<button type="button" data-cmd="underline" title="Gạch chân"><u>U</u></button>
-<button type="button" data-cmd="insertUnorderedList" title="Gạch đầu dòng">• Danh sách</button>
-<button type="button" data-cmd="insertOrderedList" title="Đánh số">1. Danh sách</button>
-<button type="button" data-cmd="indent" title="Tăng thụt đầu dòng">→ Tăng thụt</button>
-<button type="button" data-cmd="outdent" title="Giảm thụt đầu dòng">← Giảm thụt</button>
-<label title="Màu chữ" style="display:flex;align-items:center;gap:4px;font-size:12px">Màu <input type="color" id="cColor" value="#19334b"></label>
-<button type="button" id="cClearFormat" title="Xóa định dạng">Tx</button>
+<button type="button" data-cmd="bold"><b>B</b></button>
+<button type="button" data-cmd="italic"><i>I</i></button>
+<button type="button" data-cmd="underline"><u>U</u></button>
+<button type="button" data-cmd="insertUnorderedList">• Danh sách</button>
+<button type="button" data-cmd="insertOrderedList">1. Danh sách</button>
+<button type="button" data-cmd="indent">→ Tăng thụt</button>
+<button type="button" data-cmd="outdent">← Giảm thụt</button>
+<label style="display:flex;align-items:center;gap:4px;font-size:12px">Màu <input type="color" id="cColor" value="#19334b"></label>
+<button type="button" id="cClearFormat">Tx</button>
 </div>
 <div id="cEditor" class="editor" contenteditable="true" data-placeholder="Nhập nội dung phân loại, phân độ...">${safeHtml(p?.content||"")}</div>
-<div class="smallhint">Có thể in đậm, in nghiêng, đổi màu chữ, tạo danh sách và tăng/giảm thụt đầu dòng nhiều cấp.</div>
+<div class="smallhint">Có thể định dạng chữ, tạo danh sách và tăng/giảm thụt đầu dòng nhiều cấp.</div>
 </div>
 <div class="field"><label>Ghi chú</label><textarea class="notes" id="cNotes" placeholder="Nhập ghi chú nếu có...">${esc(p?.notes||"")}</textarea></div>
 ${imageUploadMarkup("cUpload","cChoose","cImageFiles","cImageCount","cThumbs","Chọn ảnh từ máy tính")}
 <div class="formfoot"><button type="button" class="btn" id="cCancel">Hủy</button><button type="submit" class="btn primary">✓ Lưu nội dung</button></div>
 </form>`;
-
-$("cBody").querySelectorAll("[data-cmd]").forEach(b=>{
-b.onclick=()=>{
-$("cEditor").focus();
-document.execCommand(b.dataset.cmd,false,null);
-};
-});
-$("cColor").oninput=e=>{
-$("cEditor").focus();
-document.execCommand("foreColor",false,e.target.value);
-};
-$("cClearFormat").onclick=()=>{
-$("cEditor").focus();
-document.execCommand("removeFormat",false,null);
-};
+$("cBody").querySelectorAll("[data-cmd]").forEach(b=>b.onclick=()=>{$("cEditor").focus();document.execCommand(b.dataset.cmd,false,null);});
+$("cColor").oninput=e=>{$("cEditor").focus();document.execCommand("foreColor",false,e.target.value);};
+$("cClearFormat").onclick=()=>{$("cEditor").focus();document.execCommand("removeFormat",false,null);};
 bindImageUpload("cUpload","cChoose","cImageFiles",()=>cImages,arr=>{cImages=arr;renderImages("cImageCount","cThumbs",cImages);});
 renderImages("cImageCount","cThumbs",cImages);
 $("cCancel").onclick=()=>{if(cActiveId)selectC(cActiveId);else showCWelcome();};
-
 $("cForm").onsubmit=async e=>{
 e.preventDefault();
-let name=$("cName").value.trim();
-let category=$("cCategory").value;
-let content=sanitizeHtml($("cEditor").innerHTML);
-if(!name||!stripHtml(content).trim()){
-toast("Vui lòng nhập tên và nội dung phân loại, phân độ.");
-return;
-}
+let name=$("cName").value.trim(),category=$("cCategory").value,content=sanitizeHtml($("cEditor").innerHTML);
+if(!name||!stripHtml(content).trim()){toast("Vui lòng nhập tên và nội dung phân loại, phân độ.");return;}
 let old=cData.find(x=>x.id===cEditingId);
 let obj={id:old?.id||uid("c"),name,category,content,notes:$("cNotes").value.trim(),images:[...cImages],createdAt:old?.createdAt||Date.now(),updatedAt:Date.now()};
-let before=cData;
-cData=old?cData.map(x=>x.id===old.id?obj:x):[obj,...cData];
+let before=cData;cData=old?cData.map(x=>x.id===old.id?obj:x):[obj,...cData];
 if(!await saveTable(CTABLE,cData)){cData=before;return;}
-cActiveId=obj.id;renderC();selectC(obj.id);
-toast(old?"Đã cập nhật nội dung.":"Đã lưu nội dung mới.");
+cActiveId=obj.id;renderC();selectC(obj.id);toast(old?"Đã cập nhật nội dung.":"Đã lưu nội dung mới.");
 };
-};
+}
 
-/* TRÌNH SOẠN THẢO: LỌC HTML, GIỮ ĐỊNH DẠNG CƠ BẢN */
+/* LỌC HTML, GIỮ ĐỊNH DẠNG */
 function sanitizeHtml(html){
 const allowed=["B","STRONG","I","EM","U","P","DIV","BR","UL","OL","LI","SPAN","BLOCKQUOTE"];
 const doc=new DOMParser().parseFromString(String(html||""),"text/html");
@@ -656,57 +617,39 @@ function clean(node){
 [...node.childNodes].forEach(child=>{
 if(child.nodeType===Node.TEXT_NODE)return;
 if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
-if(!allowed.includes(child.tagName)){
-child.replaceWith(...child.childNodes);return;
-}
+if(!allowed.includes(child.tagName)){child.replaceWith(...child.childNodes);return;}
 [...child.attributes].forEach(a=>{
 if(child.tagName==="SPAN"&&a.name==="style"){
-let color=child.style.color;
-child.removeAttribute("style");
+let color=child.style.color;child.removeAttribute("style");
 if(color&&/^#[0-9a-f]{3,8}$/i.test(color))child.style.color=color;
 }else child.removeAttribute(a.name);
 });
 clean(child);
 });
 }
-clean(doc.body);
-return doc.body.innerHTML;
+clean(doc.body);return doc.body.innerHTML;
 }
 function safeHtml(html){return sanitizeHtml(html);}
-function stripHtml(html){
-let d=new DOMParser().parseFromString(String(html||""),"text/html");
-return d.body.textContent||"";
-}
-
-/* SAO CHÉP NỘI DUNG CÓ ĐỊNH DẠNG */
+function stripHtml(html){let d=new DOMParser().parseFromString(String(html||""),"text/html");return d.body.textContent||"";}
 async function copyRich(html,plain){
 try{
 if(navigator.clipboard&&window.ClipboardItem){
-let item=new ClipboardItem({
-"text/html":new Blob([html],{type:"text/html"}),
-"text/plain":new Blob([plain],{type:"text/plain"})
-});
-await navigator.clipboard.write([item]);
-return true;
+let item=new ClipboardItem({"text/html":new Blob([html],{type:"text/html"}),"text/plain":new Blob([plain],{type:"text/plain"})});
+await navigator.clipboard.write([item]);return true;
 }
 }catch(e){console.warn(e);}
-try{
-await navigator.clipboard.writeText(plain);
-return true;
-}catch(e){
-let temp=document.createElement("textarea");
-temp.value=plain;temp.style.position="fixed";temp.style.opacity="0";
-document.body.appendChild(temp);temp.select();
-let ok=document.execCommand("copy");temp.remove();return ok;
+try{await navigator.clipboard.writeText(plain);return true;}
+catch(e){
+let temp=document.createElement("textarea");temp.value=plain;temp.style.position="fixed";temp.style.opacity="0";
+document.body.appendChild(temp);temp.select();let ok=document.execCommand("copy");temp.remove();return ok;
 }
 }
 
-/* DÙNG CHUNG CHO TẢI ẢNH */
+/* TẢI ẢNH CHO PROTOCOL VÀ CTCH */
 function imageUploadMarkup(uploadId,chooseId,fileId,countId,thumbId,buttonText){
 return `<div class="field"><label>Hình ảnh đính kèm <span style="color:#8796a5;font-weight:400">(tối đa 4 ảnh)</span></label>
 <div class="upload" id="${uploadId}">
-<div style="font-size:26px">🖼️</div>
-<p>Tải ảnh từ máy tính hoặc dán ảnh bằng <b>Ctrl + V</b>.</p>
+<div style="font-size:26px">🖼️</div><p>Tải ảnh từ máy tính hoặc dán ảnh bằng <b>Ctrl + V</b>.</p>
 <p>Hỗ trợ tối đa 4 ảnh cho mỗi mục.</p>
 <button type="button" class="btn" id="${chooseId}">＋ ${buttonText}</button>
 <input type="file" id="${fileId}" accept="image/*" multiple hidden>
@@ -717,28 +660,20 @@ return `<div class="field"><label>Hình ảnh đính kèm <span style="color:#87
 function renderImages(countId,thumbId,arr){
 $(countId).textContent=`Đã chọn ${arr.length}/4 ảnh.`;
 $(thumbId).innerHTML=arr.map((src,i)=>`<div class="thumb"><img src="${src}" alt="Ảnh ${i+1}"><button type="button" data-remove-image="${i}">×</button></div>`).join("");
-$(thumbId).querySelectorAll("[data-remove-image]").forEach(b=>{
-b.onclick=()=>{
-arr.splice(Number(b.dataset.removeImage),1);
-renderImages(countId,thumbId,arr);
-};
+$(thumbId).querySelectorAll("[data-remove-image]").forEach(b=>b.onclick=()=>{
+arr.splice(Number(b.dataset.removeImage),1);renderImages(countId,thumbId,arr);
 });
 }
 function compressImage(file){
 return new Promise((resolve,reject)=>{
-const reader=new FileReader();
-reader.onerror=()=>reject(new Error("Không đọc được ảnh"));
+const reader=new FileReader();reader.onerror=()=>reject(new Error("Không đọc được ảnh"));
 reader.onload=()=>{
-const img=new Image();
-img.onerror=()=>reject(new Error("Ảnh không hợp lệ"));
+const img=new Image();img.onerror=()=>reject(new Error("Ảnh không hợp lệ"));
 img.onload=()=>{
 const max=1400,scale=Math.min(1,max/Math.max(img.width,img.height));
-const canvas=document.createElement("canvas");
-canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);
-const ctx=canvas.getContext("2d");
-ctx.fillStyle="#ffffff";ctx.fillRect(0,0,canvas.width,canvas.height);
-ctx.drawImage(img,0,0,canvas.width,canvas.height);
-resolve(canvas.toDataURL("image/jpeg",0.78));
+const canvas=document.createElement("canvas");canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);
+const ctx=canvas.getContext("2d");ctx.fillStyle="#ffffff";ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL("image/jpeg",0.78));
 };
 img.src=reader.result;
 };
@@ -746,26 +681,19 @@ reader.readAsDataURL(file);
 });
 }
 async function addFiles(files,getImages,setImages,countId,thumbId){
-let fs=files.filter(f=>f.type.startsWith("image/"));
-if(!fs.length)return;
-let arr=getImages();
-let room=4-arr.length;
+let fs=files.filter(f=>f.type.startsWith("image/"));if(!fs.length)return;
+let arr=getImages(),room=4-arr.length;
 if(room<=0){toast("Mỗi mục chỉ được tối đa 4 ảnh.");return;}
 if(fs.length>room)toast("Chỉ thêm được "+room+" ảnh nữa (tối đa 4 ảnh).");
 for(const file of fs.slice(0,room)){
-try{
-const compressed=await compressImage(file);
-arr=getImages();
-if(arr.length<4){arr.push(compressed);setImages(arr);renderImages(countId,thumbId,arr);}
-}catch(e){toast("Không xử lý được một ảnh.");}
+try{const compressed=await compressImage(file);arr=getImages();if(arr.length<4){arr.push(compressed);setImages(arr);renderImages(countId,thumbId,arr);}}
+catch(e){toast("Không xử lý được một ảnh.");}
 }
 }
 function bindImageUpload(uploadId,chooseId,fileId,getImages,setImages){
 $(chooseId).onclick=()=>$(fileId).click();
 $(fileId).onchange=e=>{
-addFiles([...e.target.files],getImages,setImages,
-fileId==="imageFiles"?"imageCount":"cImageCount",
-fileId==="imageFiles"?"thumbs":"cThumbs");
+addFiles([...e.target.files],getImages,setImages,fileId==="imageFiles"?"imageCount":"cImageCount",fileId==="imageFiles"?"thumbs":"cThumbs");
 e.target.value="";
 };
 const up=$(uploadId);
@@ -773,9 +701,7 @@ up.ondragover=e=>{e.preventDefault();up.classList.add("drag");};
 up.ondragleave=()=>up.classList.remove("drag");
 up.ondrop=e=>{
 e.preventDefault();up.classList.remove("drag");
-addFiles([...e.dataTransfer.files],getImages,setImages,
-fileId==="imageFiles"?"imageCount":"cImageCount",
-fileId==="imageFiles"?"thumbs":"cThumbs");
+addFiles([...e.dataTransfer.files],getImages,setImages,fileId==="imageFiles"?"imageCount":"cImageCount",fileId==="imageFiles"?"thumbs":"cThumbs");
 };
 }
 document.addEventListener("paste",e=>{
@@ -785,13 +711,12 @@ let inClassification=$("cForm")&&$("cForm").contains(target);
 if(!inProtocol&&!inClassification)return;
 let items=[...(e.clipboardData?.items||[])];
 let files=items.filter(i=>i.type.startsWith("image/")).map(i=>i.getAsFile()).filter(Boolean);
-if(!files.length)return;
-e.preventDefault();
+if(!files.length)return;e.preventDefault();
 if(inProtocol)addFiles(files,()=>images,arr=>{images=arr;renderImages("imageCount","thumbs",images);},"imageCount","thumbs");
 else addFiles(files,()=>cImages,arr=>{cImages=arr;renderImages("cImageCount","cThumbs",cImages);},"cImageCount","cThumbs");
 });
 
-/* CÁC NÚT PROTOCOL */
+/* NÚT PROTOCOL */
 $("new").onclick=()=>openForm();
 $("search").oninput=renderList;
 $("edit").onclick=()=>{let p=data.find(x=>x.id===activeId);if(p)openForm(p);};
@@ -806,7 +731,7 @@ toast(ok?"Đã sao chép nội dung protocol.":"Không sao chép được.");
 }
 };
 
-/* CÁC NÚT CTCH */
+/* NÚT CTCH */
 $("cNew").onclick=()=>openCForm();
 $("cSearch").oninput=renderC;
 $("cFilter").onchange=renderC;
@@ -815,44 +740,32 @@ $("cCopy").onclick=async()=>{
 const p=cData.find(x=>x.id===cActiveId);if(!p)return;
 let html=`<h2>${esc(p.name)}</h2><p><b>Nhóm:</b> ${esc(p.category)}</p>${safeHtml(p.content)}${p.notes?`<p><b>Ghi chú:</b> ${esc(p.notes)}</p>`:""}`;
 let plain=[p.name,"Nhóm: "+p.category,"",stripHtml(p.content),p.notes?"\nGhi chú:\n"+p.notes:""].join("\n");
-let ok=await copyRich(html,plain);
-toast(ok?"Đã sao chép nội dung.":"Không sao chép được. Vui lòng thử lại.");
+let ok=await copyRich(html,plain);toast(ok?"Đã sao chép nội dung.":"Không sao chép được. Vui lòng thử lại.");
 };
 
-/* HỘP XÁC NHẬN */
+/* XÁC NHẬN XÓA */
 function ask(title,message,fn){
 $("modalTitle").textContent=title;$("modalText").textContent=message;
 modalAction=fn;$("modal").classList.add("show");
 }
 $("delete").onclick=()=>ask("Xóa protocol","Bạn có chắc chắn muốn xóa protocol này? Thao tác này không thể hoàn tác.",async()=>{
-const id=activeId;if(!id)return;
-if(!await cloudDelete(TABLE,id))return;
+const id=activeId;if(!id)return;if(!await cloudDelete(TABLE,id))return;
 data=data.filter(x=>x.id!==id);writeLocal();activeId=null;render();showWelcome();toast("Đã xóa protocol.");
 });
 $("cDelete").onclick=()=>ask("Xóa nội dung","Bạn có chắc chắn muốn xóa mục phân loại, phân độ này? Thao tác này không thể hoàn tác.",async()=>{
-const id=cActiveId;if(!id)return;
-if(!await cloudDelete(CTABLE,id))return;
+const id=cActiveId;if(!id)return;if(!await cloudDelete(CTABLE,id))return;
 cData=cData.filter(x=>x.id!==id);writeLocal();cActiveId=null;renderC();showCWelcome();toast("Đã xóa nội dung.");
 });
-$("cancelModal").onclick=()=>{$("modal").classList.remove("show");};
+$("cancelModal").onclick=()=>$("modal").classList.remove("show");
 $("confirmModal").onclick=async()=>{
-$("modal").classList.remove("show");
-let fn=modalAction;modalAction=null;
-if(fn)await fn();
+$("modal").classList.remove("show");let fn=modalAction;modalAction=null;if(fn)await fn();
 };
 
-/* SAO LƯU VÀ PHỤC HỒI CẢ HAI CÔNG CỤ */
+/* SAO LƯU VÀ PHỤC HỒI HAI TAB CŨ */
 $("export").onclick=()=>{
-let blob=new Blob([JSON.stringify({
-version:2,
-exportedAt:new Date().toISOString(),
-protocols:data,
-classifications:cData
-},null,2)],{type:"application/json"});
-let url=URL.createObjectURL(blob);
-let a=document.createElement("a");a.href=url;
-a.download="cong-cu-y-khoa-backup.json";a.click();
-URL.revokeObjectURL(url);toast("Đã xuất dữ liệu của cả hai công cụ.");
+let blob=new Blob([JSON.stringify({version:2,exportedAt:new Date().toISOString(),protocols:data,classifications:cData},null,2)],{type:"application/json"});
+let url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="cong-cu-y-khoa-backup.json";a.click();URL.revokeObjectURL(url);
+toast("Đã xuất dữ liệu của cả hai công cụ.");
 };
 $("import").onclick=()=>$("importFile").click();
 $("importFile").onchange=e=>{
@@ -860,20 +773,13 @@ let f=e.target.files[0];if(!f)return;
 let r=new FileReader();
 r.onload=async()=>{
 try{
-let obj=JSON.parse(r.result);
-let pArr=Array.isArray(obj)?obj:(obj.protocols||[]);
-let cArr=Array.isArray(obj.classifications)?obj.classifications:[];
+let obj=JSON.parse(r.result),pArr=Array.isArray(obj)?obj:(obj.protocols||[]),cArr=Array.isArray(obj.classifications)?obj.classifications:[];
 if(!Array.isArray(pArr)||!Array.isArray(cArr))throw Error("Sai định dạng");
-let incomingP=pArr.map(normalize).filter(x=>x&&x.name);
-let incomingC=cArr.map(normalizeC).filter(x=>x&&x.name);
-let oldP=data,oldC=cData;
-let pMap=new Map(data.map(x=>[x.id,x]));
-let cMap=new Map(cData.map(x=>[x.id,x]));
-incomingP.forEach(x=>pMap.set(x.id,x));
-incomingC.forEach(x=>cMap.set(x.id,x));
+let incomingP=pArr.map(normalize).filter(x=>x&&x.name),incomingC=cArr.map(normalizeC).filter(x=>x&&x.name);
+let oldP=data,oldC=cData,pMap=new Map(data.map(x=>[x.id,x])),cMap=new Map(cData.map(x=>[x.id,x]));
+incomingP.forEach(x=>pMap.set(x.id,x));incomingC.forEach(x=>cMap.set(x.id,x));
 data=[...pMap.values()];cData=[...cMap.values()];
-let okP=await saveTable(TABLE,data);
-let okC=await saveTable(CTABLE,cData);
+let okP=await saveTable(TABLE,data),okC=await saveTable(CTABLE,cData);
 if(!okP||!okC){data=oldP;cData=oldC;writeLocal();return;}
 render();renderC();showWelcome();showCWelcome();
 toast("Đã nhập "+incomingP.length+" protocol và "+incomingC.length+" mục CTCH.");
@@ -882,17 +788,271 @@ toast("Đã nhập "+incomingP.length+" protocol và "+incomingC.length+" mục 
 r.readAsText(f);e.target.value="";
 };
 
+/* ===================================================
+   TAB ĐIỆN TIM - QR RIÊNG CHO TỪNG PHIÊN
+   =================================================== */
+let ecgToken=null,ecgSessionId=null,ecgImages=[],ecgPhoneBusy=false;
+let ecgEditImage=null,ecgRotation=0,ecgCrop=0;
+
+function ecgGetTokenFromUrl(){return new URLSearchParams(location.search).get("ecg")||"";}
+
+async function ecgRequest(action,token=null){
+const response=await fetch(ECG_ENDPOINT,{
+method:"POST",
+headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},
+body:JSON.stringify({action,token})
+});
+let result={};try{result=await response.json();}catch(e){}
+if(!response.ok||result.success===false)throw new Error(result.error||result.message||"Lỗi máy chủ");
+return result;
+}
+
+/* TẠO PHIÊN MỚI */
+async function ecgCreateSession(){
+const button=$("ecgCreate");button.disabled=true;button.textContent="Đang tạo QR...";
+try{
+const result=await ecgRequest("create-session");
+if(!result.token)throw new Error("Máy chủ không trả về mã phiên.");
+ecgToken=result.token;ecgSessionId=result.sessionId||null;
+ecgImages=[];
+
+const url=new URL(location.href);url.search="";url.hash="";url.searchParams.set("ecg",ecgToken);
+const uploadLink=url.toString();
+$("ecgQr").innerHTML="";
+if(typeof QRCode==="undefined")throw new Error("Không tải được thư viện QR. Kiểm tra Internet.");
+new QRCode($("ecgQr"),{text:uploadLink,width:210,height:210,colorDark:"#19334b",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+
+$("ecgLink").textContent=uploadLink;
+$("ecgCopy").disabled=false;$("ecgRefresh").disabled=false;$("ecgPdf").disabled=true;
+$("ecgStatus").textContent="Đã tạo phiên mới. Phiên có hiệu lực 24 giờ.";
+$("ecgImages").innerHTML='<div class="empty">Chưa nhận được ảnh nào trong phiên này.</div>';
+toast("Đã tạo mã QR mới.");
+}catch(error){
+console.error(error);toast("Không tạo được QR: "+error.message);$("ecgStatus").textContent="Lỗi: "+error.message;
+}finally{button.disabled=false;button.textContent="＋ Tạo mới QR";}
+}
+
+function ecgImageUrl(item){return item.signedUrl||item.signed_url||item.url||"";}
+
+/* LẤY DANH SÁCH ẢNH CỦA ĐÚNG PHIÊN */
+async function ecgRefreshImages(){
+if(!ecgToken)return;
+$("ecgRefresh").disabled=true;
+try{
+const result=await ecgRequest("list-images",ecgToken);
+ecgImages=Array.isArray(result.images)?result.images:(Array.isArray(result.data)?result.data:[]);
+ecgRenderImages();
+$("ecgStatus").textContent="Đã cập nhật: "+ecgImages.length+" ảnh trong phiên hiện tại.";
+}catch(error){console.error(error);toast("Không tải được danh sách ảnh: "+error.message);}
+finally{$("ecgRefresh").disabled=false;}
+}
+
+function ecgRenderImages(){
+const container=$("ecgImages");
+if(!ecgImages.length){
+container.innerHTML='<div class="empty">Chưa nhận được ảnh nào trong phiên này.</div>';
+$("ecgPdf").disabled=true;return;
+}
+$("ecgPdf").disabled=false;
+container.innerHTML=ecgImages.map((item,index)=>`
+<div class="ecg-image-card">
+<img src="${esc(ecgImageUrl(item))}" alt="Ảnh điện tim ${index+1}" data-ecg-preview="${index}">
+<p class="smallhint">Ảnh điện tim ${index+1}</p>
+<div class="ecg-image-actions">
+<button class="btn" data-ecg-download="${index}">Tải ảnh gốc</button>
+<button class="btn" data-ecg-edit="${index}">Xoay / cắt</button>
+</div>
+</div>`).join("");
+container.querySelectorAll("[data-ecg-preview]").forEach(el=>el.onclick=()=>{
+const index=Number(el.dataset.ecgPreview);openImage(ecgImageUrl(ecgImages[index]));
+});
+container.querySelectorAll("[data-ecg-download]").forEach(el=>el.onclick=()=>ecgDownloadOriginal(Number(el.dataset.ecgDownload)));
+container.querySelectorAll("[data-ecg-edit]").forEach(el=>el.onclick=()=>ecgOpenEditor(Number(el.dataset.ecgEdit)));
+}
+
+function ecgSaveBlob(blob,filename){
+const url=URL.createObjectURL(blob),a=document.createElement("a");
+a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+async function ecgFetchBlob(url){
+const response=await fetch(url);
+if(!response.ok)throw new Error("Không tải được ảnh.");
+return await response.blob();
+}
+async function ecgDownloadOriginal(index){
+try{
+const blob=await ecgFetchBlob(ecgImageUrl(ecgImages[index]));
+ecgSaveBlob(blob,"dien-tim-goc-"+(index+1)+".jpg");
+}catch(error){toast("Lỗi tải ảnh: "+error.message);}
+}
+
+/* XOAY / CẮT ẢNH - KHÔNG THAY ĐỔI ẢNH GỐC */
+async function ecgOpenEditor(index){
+try{
+const blob=await ecgFetchBlob(ecgImageUrl(ecgImages[index]));
+const data=await new Promise((resolve,reject)=>{
+const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(blob);
+});
+ecgEditImage={data,index};ecgRotation=0;ecgCrop=0;ecgShowEditor();
+}catch(error){toast("Không mở được ảnh: "+error.message);}
+}
+function ecgShowEditor(){
+const modal=document.createElement("div");
+modal.className="modalbg show";modal.id="ecgEditorModal";
+modal.innerHTML=`
+<div class="modal" style="max-width:850px;max-height:94vh;overflow:auto">
+<h3>Điều chỉnh ảnh điện tim</h3>
+<p>Các thao tác chỉ áp dụng cho bản tải xuống. Ảnh gốc trên máy chủ không bị thay đổi.</p>
+<img id="ecgEditPreview" class="ecg-preview">
+<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:12px 0">
+<button class="btn" id="ecgRotate">↻ Xoay 90°</button>
+<label style="font-size:13px">Cắt mép ảnh:
+<input id="ecgCrop" type="range" min="0" max="35" step="5" value="0">
+</label>
+</div>
+<div class="modalfoot">
+<button class="btn" id="ecgEditClose">Đóng</button>
+<button class="btn primary" id="ecgEditSave">Tải bản đã xử lý</button>
+</div>
+</div>`;
+document.body.appendChild(modal);
+const preview=modal.querySelector("#ecgEditPreview");
+function draw(){
+const image=new Image();
+image.onload=()=>{
+const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d");
+const w=image.width,h=image.height,crop=ecgCrop/100,sw=w*(1-2*crop),sh=h*(1-2*crop);
+if(ecgRotation%180!==0){canvas.width=Math.round(sh);canvas.height=Math.round(sw);}
+else{canvas.width=Math.round(sw);canvas.height=Math.round(sh);}
+ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(ecgRotation*Math.PI/180);
+ctx.drawImage(image,w*crop,h*crop,sw,sh,-sw/2,-sh/2,sw,sh);
+preview.src=canvas.toDataURL("image/jpeg",0.94);
+};
+image.src=ecgEditImage.data;
+}
+modal.querySelector("#ecgRotate").onclick=()=>{ecgRotation=(ecgRotation+90)%360;draw();};
+modal.querySelector("#ecgCrop").oninput=e=>{ecgCrop=Number(e.target.value);draw();};
+modal.querySelector("#ecgEditClose").onclick=()=>modal.remove();
+modal.onclick=e=>{if(e.target===modal)modal.remove();};
+modal.querySelector("#ecgEditSave").onclick=()=>{
+const a=document.createElement("a");a.href=preview.src;
+a.download="dien-tim-da-xu-ly-"+(ecgEditImage.index+1)+".jpg";a.click();
+};
+draw();
+}
+
+/* XUẤT TOÀN BỘ ẢNH CỦA PHIÊN THÀNH PDF */
+async function ecgExportPdf(){
+if(!ecgImages.length)return;
+if(!window.jspdf||!window.jspdf.jsPDF){toast("Không tải được thư viện PDF. Kiểm tra Internet.");return;}
+const button=$("ecgPdf");button.disabled=true;button.textContent="Đang tạo PDF...";
+try{
+const {jsPDF}=window.jspdf;
+const pdf=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
+let added=0;
+for(let i=0;i<ecgImages.length;i++){
+const blob=await ecgFetchBlob(ecgImageUrl(ecgImages[i]));
+const data=await new Promise((resolve,reject)=>{
+const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(blob);
+});
+const image=await new Promise((resolve,reject)=>{
+const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=data;
+});
+if(added>0)pdf.addPage();
+const margin=8,pageW=210,pageH=297;
+const scale=Math.min((pageW-2*margin)/image.width,(pageH-2*margin)/image.height);
+const w=image.width*scale,h=image.height*scale;
+pdf.addImage(data,"JPEG",(pageW-w)/2,(pageH-h)/2,w,h);
+added++;
+}
+if(!added)throw new Error("Không có ảnh hợp lệ để xuất PDF.");
+pdf.save("dien-tim-phien-"+(ecgSessionId||"nhan-anh")+".pdf");
+}catch(error){console.error(error);toast("Không xuất được PDF: "+error.message);}
+finally{button.disabled=false;button.textContent="Xuất PDF tất cả ảnh";}
+}
+
+/* GIAO DIỆN ĐIỆN THOẠI KHI QUÉT QR */
+function ecgOpenPhone(){
+$("loginScreen").hidden=true;
+document.querySelector("header").hidden=true;
+document.querySelector("nav").hidden=true;
+$("protocolTab").hidden=true;$("classificationTab").hidden=true;
+$("ecgTab").hidden=false;$("ecgDesktop").hidden=true;$("ecgPhone").hidden=false;
+ecgToken=ecgGetTokenFromUrl();
+if(!ecgToken){
+$("ecgPhoneStatus").textContent="Liên kết không có mã phiên hợp lệ.";
+$("ecgPhoneUpload").disabled=true;
+}else{
+$("ecgPhoneStatus").textContent="Đã nhận mã phiên. Bạn có thể chọn ảnh để tải lên.";
+}
+}
+
+/* ĐIỆN THOẠI TẢI ẢNH LÊN SUPABASE */
+async function ecgPhoneUpload(){
+if(ecgPhoneBusy)return;
+const files=[...$("ecgPhoneFiles").files];
+if(!ecgToken){$("ecgPhoneStatus").textContent="Mã phiên không hợp lệ.";return;}
+if(!files.length){$("ecgPhoneStatus").textContent="Bạn chưa chọn ảnh.";return;}
+if(files.length>10){$("ecgPhoneStatus").textContent="Mỗi lần chọn tối đa 10 ảnh.";return;}
+for(const file of files){
+if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
+$("ecgPhoneStatus").textContent="Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.";return;
+}
+if(file.size>15*1024*1024){
+$("ecgPhoneStatus").textContent="Mỗi ảnh không được vượt quá 15 MB.";return;
+}
+}
+ecgPhoneBusy=true;$("ecgPhoneUpload").disabled=true;
+let success=0;
+try{
+for(let i=0;i<files.length;i++){
+$("ecgPhoneStatus").textContent="Đang tải ảnh "+(i+1)+"/"+files.length+"...";
+const form=new FormData();
+form.append("action","upload");
+form.append("token",ecgToken);
+form.append("file",files[i],files[i].name);
+const response=await fetch(ECG_ENDPOINT,{
+method:"POST",
+headers:{"apikey":SUPABASE_KEY},
+body:form
+});
+let result={};try{result=await response.json();}catch(e){}
+if(!response.ok||result.success===false)throw new Error(result.error||result.message||"Lỗi tải ảnh.");
+success++;
+}
+$("ecgPhoneFiles").value="";
+$("ecgPhoneStatus").textContent="Đã tải lên thành công "+success+" ảnh.";
+}catch(error){
+console.error(error);
+$("ecgPhoneStatus").textContent="Đã tải thành công "+success+" ảnh. Lỗi: "+error.message;
+}finally{
+ecgPhoneBusy=false;$("ecgPhoneUpload").disabled=false;
+}
+}
+
+/* GẮN SỰ KIỆN ĐIỆN TIM */
+$("ecgCreate").onclick=ecgCreateSession;
+$("ecgCopy").onclick=async()=>{
+const link=$("ecgLink").textContent;if(!link)return;
+try{await navigator.clipboard.writeText(link);toast("Đã sao chép liên kết QR.");}
+catch(error){toast("Không sao chép được liên kết.");}
+};
+$("ecgRefresh").onclick=ecgRefreshImages;
+$("ecgPdf").onclick=ecgExportPdf;
+$("ecgPhoneUpload").onclick=ecgPhoneUpload;
+
+/* MỞ TRỰC TIẾP GIAO DIỆN ĐIỆN THOẠI NẾU QUÉT QR */
+if(isEcgPhone)ecgOpenPhone();
+
 /* KHỞI ĐỘNG VÀ ĐỒNG BỘ */
 (async()=>{
 try{
 await cloudLoad();
 setInterval(refreshCloud,15000);
 }catch(e){
-console.error(e);
-cloudReady=false;
-setStatus("Không kết nối được");
-data=readLocal(KEY,normalize);
-cData=readLocal(CKEY,normalizeC);
+console.error(e);cloudReady=false;setStatus("Không kết nối được");
+data=readLocal(KEY,normalize);cData=readLocal(CKEY,normalizeC);
 render();renderC();showWelcome();showCWelcome();
 toast("Không kết nối được Supabase. Kiểm tra Internet và cấu hình máy chủ.");
 }
